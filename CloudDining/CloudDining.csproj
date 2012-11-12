@@ -64,6 +64,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\Account.cs" />
+    <Compile Include="Model\BaseNode.cs" />
+    <Compile Include="Model\CloudNode.cs" />
+    <Compile Include="Model\ComplexCloudNode.cs" />
+    <Compile Include="Model\FieldManager.cs" />
+    <Compile Include="Model\PlaneNode.cs" />
     <Compile Include="SurfaceWindow1.xaml.cs">
       <DependentUpon>SurfaceWindow1.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -100,6 +106,13 @@
     <Content Include="CloudDining.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\Wathers\cloudy.jpg" />
+    <Resource Include="Resources\Wathers\sunny.jpg" />
+    <Resource Include="Resources\Wathers\rainy.jpg" />
+    <Resource Include="Resources\Profiles\user00.jpg" />
+    <Resource Include="Resources\Profiles\user01.jpg" />
+    <Resource Include="Resources\Profiles\user02.jpg" />
+    <Resource Include="Resources\Profiles\user03.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
