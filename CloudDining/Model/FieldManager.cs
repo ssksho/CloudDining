@@ -29,6 +29,7 @@ namespace CloudDining.Model
 
             HomeNodesChanged += FieldManager_HomeNodesChanged;
         }
+        ActiveModeType _mode;
         Dictionary<Account, bool> _userStatus;
         Dictionary<object, System.Threading.Timer> _lifeTimer;
         ObservableCollection<Account> _users;
@@ -38,7 +39,15 @@ namespace CloudDining.Model
         public ReadOnlyObservableCollection<Account> Users { get; set; }
         public ReadOnlyObservableCollection<BaseNode> TimelineNodes { get; set; }
         public ReadOnlyObservableCollection<BaseNode> HomeNodes { get; set; }
-        public ActiveModeType Mode { get; set; }
+        public ActiveModeType Mode
+        {
+            get{return _mode;}
+            set
+            {
+                _mode = value;
+                OnModeChanged(new ExEventArgs<ActiveModeType>(value));
+            }
+        }
 
         public void PostPlane(PlaneNode data)
         {
@@ -160,6 +169,12 @@ namespace CloudDining.Model
         {
             if (Checkouted != null)
                 Checkouted(this, e);
+        }
+        public event EventHandler<ExEventArgs<ActiveModeType>> ModeChanged;
+        protected virtual void OnModeChanged(ExEventArgs<ActiveModeType> e)
+        {
+            if (ModeChanged != null)
+                ModeChanged(this, e);
         }
         public event NotifyCollectionChangedEventHandler HomeNodesChanged
         {
