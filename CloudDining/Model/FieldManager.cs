@@ -7,9 +7,10 @@ using System.Text;
 
 namespace CloudDining.Model
 {
-    public class FieldManager
+    public class FieldManager : ViewModel.ViewModelBase
     {
-        public FieldManager()
+        public FieldManager(System.Windows.Threading.Dispatcher uiThreadDispatcher)
+            : base(uiThreadDispatcher)
         {
             _lifeTimer = new Dictionary<object, System.Threading.Timer>();
             _userStatus = new Dictionary<Account, bool>();
@@ -46,6 +47,7 @@ namespace CloudDining.Model
             {
                 _mode = value;
                 OnModeChanged(new ExEventArgs<ActiveModeType>(value));
+                OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs("Mode"));
             }
         }
 

@@ -21,9 +21,9 @@ namespace CloudDining
 {
     using Model;
 
-    public partial class SurfaceWindow1 : SurfaceWindow
+    public partial class MainWindow : SurfaceWindow
     {
-        public SurfaceWindow1()
+        public MainWindow()
         {
             InitializeComponent();
             AddWindowAvailabilityHandlers();
@@ -32,7 +32,7 @@ namespace CloudDining
             _loginUserSelecterPoint = new Dictionary<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>, Point>();
             _loginUserSelecterMenu = new Dictionary<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>, ElementMenu>();
 
-            _fieldManager = new FieldManager();
+            _fieldManager = new FieldManager(Dispatcher);
             DataContext = _fieldManager;
         }
         FieldManager _fieldManager;
@@ -96,11 +96,6 @@ namespace CloudDining
             loginUserSelecter.IsSubmenuOpen = true;
             tuple.Item1.Capture(loginUserSelecter, CaptureMode.SubTree);
         }
-        void ElementMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var obj = (ElementMenuItem)sender;
-            loginUserDisplay.Text = string.Format("{0}がログインしました。", obj.Header);
-        }
         void loginUserSelecter_SubmenuClosed(object sender, RoutedEventArgs e)
         {
             loginUserSelecter.Visibility = System.Windows.Visibility.Hidden;
@@ -113,31 +108,31 @@ namespace CloudDining
             // Remove handlers for window availability events
             RemoveWindowAvailabilityHandlers();
         }
-        private void AddWindowAvailabilityHandlers()
+        void AddWindowAvailabilityHandlers()
         {
             // Subscribe to surface window availability events
             ApplicationServices.WindowInteractive += OnWindowInteractive;
             ApplicationServices.WindowNoninteractive += OnWindowNoninteractive;
             ApplicationServices.WindowUnavailable += OnWindowUnavailable;
         }
-        private void RemoveWindowAvailabilityHandlers()
+        void RemoveWindowAvailabilityHandlers()
         {
             // Unsubscribe from surface window availability events
             ApplicationServices.WindowInteractive -= OnWindowInteractive;
             ApplicationServices.WindowNoninteractive -= OnWindowNoninteractive;
             ApplicationServices.WindowUnavailable -= OnWindowUnavailable;
         }
-        private void OnWindowInteractive(object sender, EventArgs e)
+        void OnWindowInteractive(object sender, EventArgs e)
         {
             //TODO: enable audio, animations here
         }
-        private void OnWindowNoninteractive(object sender, EventArgs e)
+        void OnWindowNoninteractive(object sender, EventArgs e)
         {
             //TODO: Disable audio here if it is enabled
 
             //TODO: optionally enable animations here
         }
-        private void OnWindowUnavailable(object sender, EventArgs e)
+        void OnWindowUnavailable(object sender, EventArgs e)
         {
             //TODO: disable audio, animations here
         }

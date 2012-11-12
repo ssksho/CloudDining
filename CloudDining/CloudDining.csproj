@@ -64,12 +64,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
-    <Page Include="SurfaceWindow1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -80,10 +79,6 @@
     <Compile Include="Model\ComplexCloudNode.cs" />
     <Compile Include="Model\FieldManager.cs" />
     <Compile Include="Model\PlaneNode.cs" />
-    <Compile Include="SurfaceWindow1.xaml.cs">
-      <DependentUpon>SurfaceWindow1.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -123,6 +118,12 @@
     <Resource Include="Resources\Profiles\user01.jpg" />
     <Resource Include="Resources\Profiles\user02.jpg" />
     <Resource Include="Resources\Profiles\user03.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
