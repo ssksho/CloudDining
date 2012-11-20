@@ -64,6 +64,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\CloudStructure.cs" />
+    <Compile Include="Controls\DramControl.cs" />
+    <Compile Include="Controls\ExScatterViewItem.cs" />
+    <Compile Include="Controls\GanttControl.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -105,6 +109,66 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Clouds\cloudImage00_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage00_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage01_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage01_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage02_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage02_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage03_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage03_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage04_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage04_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage05_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage05_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage06_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage06_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage07_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage07_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage08_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage08_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage09_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage09_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage10_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage10_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage11_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage11_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage12_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage12_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage13_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage13_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage14_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage14_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage15_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage15_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage16_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage16_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage17_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage17_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage18_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage18_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage19_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage19_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage20_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage20_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage21_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage21_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage22_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage22_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage23_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage23_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage24_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage24_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage25_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage25_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage26_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage26_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage27_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage27_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage28_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage28_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage29_0.png" />
+    <Resource Include="Resources\Clouds\cloudImage29_1.png" />
     <Content Include="Resources\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -121,6 +185,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
