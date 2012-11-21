@@ -13,7 +13,7 @@ namespace CloudDining.Model
             : base(uiThreadDispatcher)
         {
             _lifeTimer = new Dictionary<object, System.Threading.Timer>();
-            _userStatus = new Dictionary<Account, bool>();
+            _userCheckinTime = new Dictionary<Account, DateTime>();
             _users = new ObservableCollection<Account>();
             _timelineNodes = new ObservableCollection<BaseNode>();
             _homeNodes = new ObservableCollection<BaseNode>();
@@ -31,7 +31,7 @@ namespace CloudDining.Model
             HomeNodesChanged += FieldManager_HomeNodesChanged;
         }
         ActiveModeType _mode;
-        Dictionary<Account, bool> _userStatus;
+        Dictionary<Account, DateTime> _userCheckinTime;
         Dictionary<object, System.Threading.Timer> _lifeTimer;
         ObservableCollection<Account> _users;
         ObservableCollection<BaseNode> _timelineNodes;
@@ -59,24 +59,26 @@ namespace CloudDining.Model
         public void AddUser(Account target)
         {
             _users.Add(target);
-            _userStatus.Add(target, false);
+            _userCheckinTime.Add(target, DateTime.MinValue);
         }
         public void RemoveUser(Account target)
         {
             _users.Remove(target);
-            _userStatus.Remove(target);
+            _userCheckinTime.Remove(target);
         }
         public bool CheckStatusOf(Account target)
-        { return _userStatus[target]; }
-        public void CheckinUser(Account target, TimeSpan? checkinSpan = null, TimeSpan? cloudLifeSpan = null)
         {
-            bool currentStatus;
-            if (_userStatus.TryGetValue(target, out currentStatus) == false)
+            DateTime currentStatus;
+            if (_userCheckinTime.TryGetValue(target, out currentStatus) == false)
                 throw new ArgumentException(
                     "引数targetで指定されたインスタンスはFieldManager.Usersに登録されていません。");
-            if (currentStatus == false)
+            return currentStatus != DateTime.MinValue;
+        }
+        public void CheckinUser(Account target, TimeSpan? checkinSpan = null, TimeSpan? cloudLifeSpan = null)
+        {
+            if (CheckStatusOf(target) == false)
             {
-                _userStatus[target] = true;
+                _userCheckinTime[target] = DateTime.Now;
                 System.Diagnostics.Debug.WriteLine("DebugWriteLine: Checkin", target.Name);
                 OnCheckined(new ExEventArgs<Account>(target));
             }
@@ -87,21 +89,28 @@ namespace CloudDining.Model
         }
         public bool CheckoutUser(Account target, TimeSpan? lifeSpan = null)
         {
-            if (_userStatus.ContainsKey(target) == false)
+            if (_userCheckinTime.ContainsKey(target) == false)
                 throw new ArgumentException(
                     "引数targetで指定されたインスタンスはFieldManager.Usersに登録されていません。");
-            if (_userStatus[target] == false)
+            if (_userCheckinTime[target] == DateTime.MinValue)
                 return false;
 
             var complexNode = new ComplexCloudNode();
-            foreach (var item in _userStatus.Where(pair => pair.Value))
-                complexNode.Children.Add(new CloudNode(item.Key));
+            var cloudNode = new CloudNode(target, target.Weather);
+            var checkinTime = _userCheckinTime[target];
+            foreach (var item in TimelineNodes.Reverse().OfType<ComplexCloudNode>())
+                if (item.RaiseTime > checkinTime)
+                    item.Children.Add(cloudNode);
+            foreach (var item in HomeNodes.Reverse().OfType<ComplexCloudNode>())
+                if (item.RaiseTime > checkinTime)
+                    item.Children.Add(cloudNode);
             _homeNodes.Add(complexNode);
             _timelineNodes.Add(complexNode);
-            _userStatus[target] = false;
-
             System.Diagnostics.Debug.WriteLine("DebugWriteLine: Checkout", target.Name);
             OnCheckouted(new ExEventArgs<Account>(target));
+
+            complexNode.Children.Add(cloudNode);
+            _userCheckinTime[target] = DateTime.MinValue;
 
             //3時間で雲は消える
             Delay<ComplexCloudNode>(
