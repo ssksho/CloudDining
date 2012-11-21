@@ -9,28 +9,30 @@ namespace CloudDining.Model
 {
     public class CloudNode : BaseNode
     {
-        public CloudNode(Account owner, DateTime? raiseTime = null)
-            : base(raiseTime) { Owner = owner; }
-        WeatherType _status;
+        public CloudNode(Account owner, Controls.CloudStateType status, DateTime? raiseTime = null)
+            : base(raiseTime)
+        {
+            Owner = owner;
+            Status = status;
+        }
+        Controls.CloudStateType _status;
 
         public Account Owner { get; private set; }
-        public WeatherType Status
+        public Controls.CloudStateType Status
         {
             get { return _status; }
             set
             {
                 _status = value;
-                OnStatusChanged(new ExEventArgs<WeatherType>(value));
+                OnStatusChanged(new ExEventArgs<Controls.CloudStateType>(value));
             }
         }
 
-        public event EventHandler<ExEventArgs<WeatherType>> StatusChanged;
-        protected virtual void OnStatusChanged(ExEventArgs<WeatherType> e)
+        public event EventHandler<ExEventArgs<Controls.CloudStateType>> StatusChanged;
+        protected virtual void OnStatusChanged(ExEventArgs<Controls.CloudStateType> e)
         {
             if (StatusChanged != null)
                 StatusChanged(this, e);
         }
     }
-    public enum WeatherType
-    { Sunny, Rainny, Cloudy }
 }

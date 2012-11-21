@@ -28,15 +28,16 @@ namespace CloudDining.Model
             Icon = icon;
             StatusSelecter = new List<CheckinStateViewModel>()
             {
-                new CheckinStateViewModel(this, "晴天", new Uri("/Resources/Wathers/sunny.jpg", UriKind.Relative), App.Current.Dispatcher),
-                new CheckinStateViewModel(this, "曇天", new Uri("/Resources/Wathers/cloudy.jpg", UriKind.Relative), App.Current.Dispatcher),
-                new CheckinStateViewModel(this, "雨天", new Uri("/Resources/Wathers/rainy.jpg", UriKind.Relative), App.Current.Dispatcher),
+                new CheckinStateViewModel(this, "晴天", Controls.CloudStateType.Sunny, new Uri("/Resources/Wathers/sunny.jpg", UriKind.Relative), App.Current.Dispatcher),
+                new CheckinStateViewModel(this, "曇天", Controls.CloudStateType.Cloudy, new Uri("/Resources/Wathers/cloudy.jpg", UriKind.Relative), App.Current.Dispatcher),
+                new CheckinStateViewModel(this, "雨天", Controls.CloudStateType.Rainy, new Uri("/Resources/Wathers/rainy.jpg", UriKind.Relative), App.Current.Dispatcher),
             };
         }
         
         public FieldManager Field { get; private set; }
         public string Name { get; private set; }
         public Uri Icon { get; private set; }
+        public Controls.CloudStateType Weather { get; set; }
         public List<CheckinStateViewModel> StatusSelecter { get; private set; }
         public List<PlaneNode> ReadedPictures
         {
@@ -53,20 +54,25 @@ namespace CloudDining.Model
     }
     public class CheckinStateViewModel : ViewModel.ViewModelBase
     {
-        public CheckinStateViewModel(Account accountModel, string name, Uri icon, Dispatcher uiDispatcher)
+        public CheckinStateViewModel(Account accountModel, string name, Controls.CloudStateType type, Uri icon, Dispatcher uiDispatcher)
             : base(uiDispatcher)
         {
             _accountModel = accountModel;
+            _weather = type;
             Name = name;
             Icon = icon;
             SelecteStatusCommand = new ViewModel.RelayCommand(SelectedStatus_Executed);
         }
         Account _accountModel;
+        Controls.CloudStateType _weather;
         public string Name { get; private set; }
         public Uri Icon { get; private set; }
         public ICommand SelecteStatusCommand { get; private set; }
 
         void SelectedStatus_Executed(object param)
-        { _accountModel.Field.CheckinUser(_accountModel, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10)); }
+        {
+            _accountModel.Weather = _weather;
+            _accountModel.Field.CheckinUser(_accountModel, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+        }
     }
 }
