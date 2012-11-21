@@ -5,7 +5,8 @@
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:ie="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:localmdl="clr-namespace:CloudDining.Model"
-    Title="CloudDining">
+    xmlns:local="clr-namespace:CloudDining.Controls"
+    Title="CloudDining" Width="1200" Height="800">
     <s:SurfaceWindow.Resources>
         <!--ホーム,タイムシフト画面切り替えアニメーション-->
         <Storyboard x:Key="board_changeTimeshiftMode">
@@ -50,7 +51,7 @@
           PreviewMouseDown="backGrid_PreviewInputDown" PreviewMouseMove="backGrid_PreviewInputMove" PreviewMouseUp="backGrid_PreviewInputUp"
           PreviewTouchDown="backGrid_PreviewInputDown" PreviewTouchMove="backGrid_PreviewInputMove" PreviewTouchUp="backGrid_PreviewInputUp">
         <Grid Name="homeGrid">
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button1">
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button1">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <ie:ChangePropertyAction TargetObject="{Binding DataContext, ElementName=backGrid}" PropertyName="Mode" Value="Timeline" />
@@ -59,7 +60,9 @@
             </s:SurfaceButton>
         </Grid>
         <Grid Name="timeshiftGrid">
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button2">
+            <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Background="Transparent" IsManipulationEnabled="True" />
+            <s:SurfaceSlider VerticalAlignment="Top" Value="{Binding AngleOffset, ElementName=timeshiftDram, Mode=TwoWay}" Maximum="1800" Minimum="-1800" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button2">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <ie:ChangePropertyAction TargetObject="{Binding DataContext, ElementName=backGrid}" PropertyName="Mode" Value="Home" />
@@ -79,20 +82,11 @@
                 </Ellipse>
                 <Style TargetType="{x:Type s:ElementMenuItem}">
                     <Setter Property="Header" Value="{Binding DataContext.Name, RelativeSource={RelativeSource Mode=Self}}" />
-                    <Setter Property="Icon" Value="{StaticResource userIcon}" />
                     <Setter Property="ItemsSource" Value="{Binding DataContext.StatusSelecter, RelativeSource={RelativeSource Mode=Self}}" />
-                    <Setter Property="FontSize" Value="18" />
-                    <Setter Property="ItemContainerStyle">
+                    <Setter Property="Command" Value="{Binding DataContext.SelecteStatusCommand, RelativeSource={RelativeSource Mode=Self}}" />
+                    <Setter Property="Background">
                         <Setter.Value>
-                            <Style TargetType="{x:Type s:ElementMenuItem}">
-                                <Setter Property="Background">
-                                    <Setter.Value>
-                                        <ImageBrush ImageSource="{Binding DataContext.Icon, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type s:ElementMenuItem}}}" />
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Header" Value="{Binding DataContext.Name, RelativeSource={RelativeSource Mode=Self}}" />
-                                <Setter Property="Command" Value="{Binding DataContext.SelecteStatusCommand, RelativeSource={RelativeSource Mode=Self}}" />
-                            </Style>
+                            <ImageBrush ImageSource="{Binding DataContext.Icon, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type s:ElementMenuItem}}}" />
                         </Setter.Value>
                     </Setter>
                 </Style>

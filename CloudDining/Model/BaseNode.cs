@@ -14,8 +14,9 @@ namespace CloudDining.Model
             RaiseTime = raiseTime ?? DateTime.Now;
         }
         public bool IsOpened { get; private set; }
-        public DateTime RaiseTime { get; private set; }
-        public UIElement Element { get; set; }
+        public virtual DateTime RaiseTime { get; protected set; }
+        public UIElement TimeshiftElement { get; set; }
+        public UIElement HomeElement { get; set; }
         public virtual void Close()
         { IsOpened = true; }
         public virtual void Open()

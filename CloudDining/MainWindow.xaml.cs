@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -32,9 +33,21 @@ namespace CloudDining
             _loginUserSelecterPoint = new Dictionary<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>, Point>();
             _loginUserSelecterMenu = new Dictionary<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>, ElementMenu>();
 
+            _rnd = new Random();
+            _startAppTime = DateTime.Now;
             _fieldManager = new FieldManager(Dispatcher);
+            _fieldManager.HomeNodesChanged += _fieldManager_HomeNodesChanged;
+            _fieldManager.TimelineNodesChanged += _fieldManager_TimelineNodesChanged;
             DataContext = _fieldManager;
+
+            timeshiftDram.BeginAnimation(
+                Controls.DramControl.SubAngleOffsetProperty,
+                new System.Windows.Media.Animation.DoubleAnimation(0, -360, (Duration)TimeSpan.FromMinutes(360 * MINUTES_TO_ANGLE_RATE)));
         }
+        const double MINUTES_TO_ANGLE_RATE = 0.1;//10minute = 1angle
+        const double LATEST_OFFSET_LINE = -20;
+        Random _rnd;
+        DateTime _startAppTime;
         FieldManager _fieldManager;
         List<Tuple<InputDevice, DispatcherTimer>> _loginUserSelecterDevice;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, ElementMenu> _loginUserSelecterMenu;
@@ -99,6 +112,106 @@ namespace CloudDining
         void loginUserSelecter_SubmenuClosed(object sender, RoutedEventArgs e)
         {
             loginUserSelecter.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        void _fieldManager_HomeNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Dispatcher.Invoke((Action)(() =>
+            {
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (var item in e.NewItems.OfType<ComplexCloudNode>())
+                        {
+                            var grid = new Grid();
+                            grid.Width = 100;
+                            grid.Height = 100;
+                            grid.Background = Brushes.Aqua;
+                            item.ChildrenChanged += CloudComplex_ChildrenChanged;
+                            item.HomeElement = grid;
+                            homeGrid.Children.Add(grid);
+                        }
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (var item in e.OldItems.OfType<ComplexCloudNode>())
+                        {
+                            var dramItem = item.HomeElement;
+                            homeGrid.Children.Remove(dramItem);
+                            item.ChildrenChanged -= CloudComplex_ChildrenChanged;
+                        }
+                        break;
+                }
+            }));
+        }
+        void _fieldManager_TimelineNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Dispatcher.Invoke((Action)(() =>
+            {
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (var item in e.NewItems.OfType<ComplexCloudNode>())
+                        {
+                            item.ChildrenChanged += CloudComplex_ChildrenChanged;
+                            var grid = new Grid();
+                            var dramItem = new Controls.DramItem()
+                            {
+                                Content = grid,
+                                Angle = (_startAppTime - item.RaiseTime).TotalMinutes / MINUTES_TO_ANGLE_RATE + LATEST_OFFSET_LINE,
+                                Track = _rnd.Next(20) * 30,
+                            };
+                            item.TimeshiftElement = dramItem;
+                            timeshiftDram.Items.Add(dramItem);
+                        }
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (var item in e.OldItems.OfType<ComplexCloudNode>())
+                        {
+                            var dramItem = item.TimeshiftElement;
+                            timeshiftDram.Items.Remove(dramItem);
+                            item.ChildrenChanged -= CloudComplex_ChildrenChanged;
+                        }
+                        break;
+                }
+            }));
+        }
+        void CloudComplex_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Dispatcher.Invoke((Action)(() =>
+            {
+                var complexCloud = (ComplexCloudNode)sender;
+                var dramItem = (Controls.DramItem)complexCloud.TimeshiftElement;
+                var grid = (Grid)dramItem.Content;
+
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (var item in e.NewItems.Cast<CloudNode>())
+                        {
+                            var cloudStructure = new Controls.CloudStructure()
+                            {
+                                Width = 200,
+                                Height = 150,
+                                CloudTypeId = _rnd.Next(30),
+                                CloudStatus = item.Status,
+                                RenderTransform = new TranslateTransform(
+                                    complexCloud.Children.Count * 15,
+                                    complexCloud.Children.Count * 15),
+                                Tag = item,
+                            };
+                            item.TimeshiftElement = cloudStructure;
+                            grid.Children.Add(cloudStructure);
+                            cloudStructure.BeginAnimation(
+                                Control.OpacityProperty,
+                                new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, new Duration(TimeSpan.FromMilliseconds(1000))));
+                        }
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (var item in e.OldItems.Cast<CloudNode>())
+                            grid.Children.Remove(item.TimeshiftElement);
+                        break;
+                }
+            }));
         }
 
         protected override void OnClosed(EventArgs e)
