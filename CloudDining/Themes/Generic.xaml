@@ -67,7 +67,7 @@
                             </MultiBinding>
                         </RotateTransform.CenterY>
                     </RotateTransform>
-                    <RotateTransform Angle="{Binding Path=AngleOffset, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramControl}}, Converter={StaticResource calcConverter}, ConverterParameter=signInversion}"
+                    <RotateTransform Angle="{Binding Path=AngleOffset, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramControl}}}"
                                      CenterX="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramItem}}, Converter={StaticResource calcConverter}, ConverterParameter=half}">
                         <RotateTransform.CenterY>
                             <MultiBinding Converter="{StaticResource sumConverter}" ConverterParameter="sum">
@@ -77,7 +77,7 @@
                             </MultiBinding>
                         </RotateTransform.CenterY>
                     </RotateTransform>
-                    <RotateTransform Angle="{Binding Path=SubAngleOffset, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramControl}}, Converter={StaticResource calcConverter}, ConverterParameter=signInversion}"
+                    <RotateTransform Angle="{Binding Path=SubAngleOffset, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramControl}}}"
                                      CenterX="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramItem}}, Converter={StaticResource calcConverter}, ConverterParameter=half}">
                         <RotateTransform.CenterY>
                             <MultiBinding Converter="{StaticResource sumConverter}" ConverterParameter="sum">

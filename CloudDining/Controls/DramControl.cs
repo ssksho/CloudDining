@@ -77,6 +77,16 @@ namespace CloudDining.Controls
             get { return (double)GetValue(ArcHeightProperty); }
             set { SetValue(ArcHeightProperty, value); }
         }
+        public double Maximum
+        {
+            get { return (double)GetValue(MaximumProperty); }
+            set { SetValue(MaximumProperty, value); }
+        }
+        public double Minimum
+        {
+            get { return (double)GetValue(MinimumProperty); }
+            set { SetValue(MinimumProperty, value); }
+        }
         
 	    protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {  
 	       var cont = element as DramItem;  
@@ -105,13 +115,17 @@ namespace CloudDining.Controls
         }
 
         public static readonly DependencyProperty AngleOffsetProperty = DependencyProperty.RegisterAttached(
-            "AngleOffset", typeof(double), typeof(DramControl), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.Inherits, Changed_AngleOffset));
+            "AngleOffset", typeof(double), typeof(DramControl), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.Inherits, Changed_AngleOffset, CoerceValue_AngleOffset));
         public static readonly DependencyProperty SubAngleOffsetProperty = DependencyProperty.RegisterAttached(
             "SubAngleOffset", typeof(double), typeof(DramControl), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.Inherits, Changed_AngleOffset));
         public static readonly DependencyProperty ArcWidthProperty = DependencyProperty.Register(
             "ArcWidth", typeof(double), typeof(DramControl), new UIPropertyMetadata(0.0, Changed_ArcWidthHeight));
         public static readonly DependencyProperty ArcHeightProperty = DependencyProperty.Register(
             "ArcHeight", typeof(double), typeof(DramControl), new UIPropertyMetadata(100.0, Changed_ArcWidthHeight));
+        public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register(
+            "Maximum", typeof(double), typeof(DramControl), new UIPropertyMetadata(180.0));
+        public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register(
+            "Minimum", typeof(double), typeof(DramControl), new UIPropertyMetadata(-180.0));
         static readonly DependencyPropertyKey ArcRadiusPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
             "ArcRadius", typeof(double), typeof(DramControl), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.Inherits));
         public static readonly DependencyProperty ArcRadiusProperty = ArcRadiusPropertyKey.DependencyProperty;
@@ -146,6 +160,16 @@ namespace CloudDining.Controls
 			{
                 child.UpdateArcRadius();
 			}
+        }
+        static object CoerceValue_AngleOffset(DependencyObject sender, object value)
+        {
+            if (sender is DramControl == false)
+                return value;
+
+            var dramCtrl = sender as DramControl;
+            var val = (double)value;
+            var res = Math.Min(dramCtrl.Maximum, Math.Max(val, dramCtrl.Minimum));
+            return res;
         }
     }
     [System.Windows.Markup.ContentProperty("Content")]
