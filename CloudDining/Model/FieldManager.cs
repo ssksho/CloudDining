@@ -104,9 +104,7 @@ namespace CloudDining.Model
             foreach (var item in TimelineNodes.Reverse().OfType<ComplexCloudNode>())
                 if (item.RaiseTime > checkinTime)
                     item.Children.Add(cloudNode);
-            foreach (var item in HomeNodes.Reverse().OfType<ComplexCloudNode>())
-                if (item.RaiseTime > checkinTime)
-                    item.Children.Add(cloudNode);
+
             _homeNodes.Add(complexNode);
             _timelineNodes.Add(complexNode);
             System.Diagnostics.Debug.WriteLine("DebugWriteLine: Checkout", target.Name);
