@@ -109,6 +109,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\wallpaper.jpg" />
     <Resource Include="Resources\Clouds\cloudImage00_0.png" />
     <Resource Include="Resources\Clouds\cloudImage00_1.png" />
     <Resource Include="Resources\Clouds\cloudImage01_0.png" />

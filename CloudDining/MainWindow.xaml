@@ -50,6 +50,7 @@
     <Grid Name="backGrid" Background="Transparent"
           PreviewMouseDown="backGrid_PreviewInputDown" PreviewMouseMove="backGrid_PreviewInputMove" PreviewMouseUp="backGrid_PreviewInputUp"
           PreviewTouchDown="backGrid_PreviewInputDown" PreviewTouchMove="backGrid_PreviewInputMove" PreviewTouchUp="backGrid_PreviewInputUp">
+        <Image Source="/Resources/wallpaper.jpg" Stretch="UniformToFill" />
         <Grid Name="homeGrid">
             <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button1">
                 <i:Interaction.Triggers>
@@ -60,7 +61,7 @@
             </s:SurfaceButton>
         </Grid>
         <Grid Name="timeshiftGrid">
-            <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Background="Transparent" IsManipulationEnabled="True" />
+            <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Maximum="0" Minimum="-2520" Background="#40000000" IsManipulationEnabled="True" />
             <s:SurfaceSlider VerticalAlignment="Top" Value="{Binding AngleOffset, ElementName=timeshiftDram, Mode=TwoWay}" Maximum="1800" Minimum="-1800" />
             <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button2">
                 <i:Interaction.Triggers>
@@ -70,6 +71,11 @@
                 </i:Interaction.Triggers>
             </s:SurfaceButton>
         </Grid>
+        <s:ScatterView x:Name="detailPanelContainer">
+            <local:ExScatterViewItem CanScale="False" Orientation="0" Center="900,500">
+                <local:GanttControl x:Name="detailPanel" HorizontalAlignment="Left" VerticalAlignment="Top" />
+            </local:ExScatterViewItem>
+        </s:ScatterView>
         <s:ElementMenu ItemsSource="{Binding Users}" Name="loginUserSelecter" ActivationMode="AlwaysActive" Visibility="Hidden" VerticalAlignment="Top" HorizontalAlignment="Left" SubmenuClosed="loginUserSelecter_SubmenuClosed">
             <s:ElementMenu.RenderTransform>
                 <TranslateTransform x:Name="loginUserSelecterTranslater" />

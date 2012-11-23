@@ -40,12 +40,16 @@ namespace CloudDining
             _fieldManager.TimelineNodesChanged += _fieldManager_TimelineNodesChanged;
             DataContext = _fieldManager;
 
+            var len = TimeSpan.FromHours(8);
+            var aaa = TimeSpan.FromMinutes(10);
+            var kaiten = len.TotalSeconds / aaa.TotalSeconds;
             timeshiftDram.BeginAnimation(
                 Controls.DramControl.SubAngleOffsetProperty,
-                new System.Windows.Media.Animation.DoubleAnimation(0, -360, (Duration)TimeSpan.FromMinutes(360 * MINUTES_TO_ANGLE_RATE)));
+                new System.Windows.Media.Animation.DoubleAnimation(0, 360 * kaiten, (Duration)len));
+            MinutesToAngleRate = 360 * kaiten / len.TotalMinutes;
         }
-        const double MINUTES_TO_ANGLE_RATE = 0.1;//10minute = 1angle
         const double LATEST_OFFSET_LINE = -20;
+        double MinutesToAngleRate;
         Random _rnd;
         DateTime _startAppTime;
         FieldManager _fieldManager;
@@ -157,9 +161,11 @@ namespace CloudDining
                             var dramItem = new Controls.DramItem()
                             {
                                 Content = grid,
-                                Angle = (_startAppTime - item.RaiseTime).TotalMinutes / MINUTES_TO_ANGLE_RATE + LATEST_OFFSET_LINE,
+                                Angle = (_startAppTime - item.RaiseTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
                                 Track = _rnd.Next(20) * 30,
                             };
+                            dramItem.MouseUp += dramItem_MouseUp;
+                            dramItem.Tag = item;
                             item.TimeshiftElement = dramItem;
                             timeshiftDram.Items.Add(dramItem);
                         }
@@ -174,6 +180,22 @@ namespace CloudDining
                         break;
                 }
             }));
+        }
+
+        void dramItem_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var dramItem = (Controls.DramItem)sender;
+            var complexCloud = (ComplexCloudNode)dramItem.Tag;
+
+            detailPanel.Items.Clear();
+            foreach (var item in complexCloud.Children)
+                detailPanel.Items.Add(new Controls.GanttItem()
+                {
+                    StartTime = item.CheckinTime,
+                    //EndTime = item.CheckinTime.Add(item.CheckinSpan),
+                    EndTime = item.CheckinTime.AddMinutes(30),
+                    HeadIcon = item.Owner.Icon,
+                });
         }
         void CloudComplex_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -192,7 +214,7 @@ namespace CloudDining
                             {
                                 Width = 200,
                                 Height = 150,
-                                CloudTypeId = _rnd.Next(30),
+                                CloudTypeId = item.CloudTypeId,
                                 CloudStatus = item.Status,
                                 RenderTransform = new TranslateTransform(
                                     complexCloud.Children.Count * 15,
