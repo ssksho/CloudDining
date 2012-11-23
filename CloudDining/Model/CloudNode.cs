@@ -9,15 +9,20 @@ namespace CloudDining.Model
 {
     public class CloudNode : BaseNode
     {
-        public CloudNode(Account owner, Controls.CloudStateType status, DateTime? raiseTime = null)
+        public CloudNode(Account owner, Controls.CloudStateType status, int cloudTypeId, DateTime checkinTime, TimeSpan checkinSpan, DateTime? raiseTime = null)
             : base(raiseTime)
         {
             Owner = owner;
             Status = status;
+            CloudTypeId = cloudTypeId;
+            CheckinTime = checkinTime;
+            CheckinSpan = checkinSpan;
         }
         Controls.CloudStateType _status;
 
         public Account Owner { get; private set; }
+        public DateTime CheckinTime { get; private set; }
+        public TimeSpan CheckinSpan { get; private set; }
         public Controls.CloudStateType Status
         {
             get { return _status; }
@@ -27,6 +32,7 @@ namespace CloudDining.Model
                 OnStatusChanged(new ExEventArgs<Controls.CloudStateType>(value));
             }
         }
+        public int CloudTypeId { get; private set; }
 
         public event EventHandler<ExEventArgs<Controls.CloudStateType>> StatusChanged;
         protected virtual void OnStatusChanged(ExEventArgs<Controls.CloudStateType> e)

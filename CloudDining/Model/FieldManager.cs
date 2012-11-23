@@ -12,6 +12,7 @@ namespace CloudDining.Model
         public FieldManager(System.Windows.Threading.Dispatcher uiThreadDispatcher)
             : base(uiThreadDispatcher)
         {
+            _rnd = new Random();
             _lifeTimer = new Dictionary<object, System.Threading.Timer>();
             _userCheckinTime = new Dictionary<Account, DateTime>();
             _users = new ObservableCollection<Account>();
@@ -30,6 +31,7 @@ namespace CloudDining.Model
 
             HomeNodesChanged += FieldManager_HomeNodesChanged;
         }
+        Random _rnd;
         ActiveModeType _mode;
         Dictionary<Account, DateTime> _userCheckinTime;
         Dictionary<object, System.Threading.Timer> _lifeTimer;
@@ -96,8 +98,9 @@ namespace CloudDining.Model
                 return false;
 
             var complexNode = new ComplexCloudNode();
-            var cloudNode = new CloudNode(target, target.Weather);
             var checkinTime = _userCheckinTime[target];
+            var checkinSpan = DateTime.Now - checkinTime;
+            var cloudNode = new CloudNode(target, target.Weather, _rnd.Next(30), checkinTime, checkinSpan);
             foreach (var item in TimelineNodes.Reverse().OfType<ComplexCloudNode>())
                 if (item.RaiseTime > checkinTime)
                     item.Children.Add(cloudNode);
