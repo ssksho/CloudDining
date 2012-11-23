@@ -97,7 +97,7 @@ namespace CloudDining.Controls
         }
         void DramControl_ManipulationDelta(object sender, ManipulationDeltaEventArgs e)
         {
-            AngleOffset -= e.DeltaManipulation.Translation.X;
+            AngleOffset += e.DeltaManipulation.Translation.X * 0.05;
         }
         void DramControl_ManipulationInertiaStarting(object sender, ManipulationInertiaStartingEventArgs e)
         {
