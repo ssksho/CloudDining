@@ -69,9 +69,7 @@ namespace CloudDining.Controls
             var tmp = DateTime.MaxValue;
             foreach (GanttItem item in Items)
                 tmp = item.StartTime < tmp
-                    ? new DateTime(
-                        item.StartTime.Year, item.StartTime.Month, item.StartTime.Day,
-                        item.StartTime.Hour, item.StartTime.Minute < 30 ? 0 : 0, 0)
+                    ? new DateTime(item.StartTime.Year, item.StartTime.Month, item.StartTime.Day, item.StartTime.Hour, item.StartTime.Minute < 30 ? 0 : 30, 0)
                     : tmp;
             SetDateTimeOffset(this, tmp);
             UpdateRowPattern();
@@ -87,15 +85,15 @@ namespace CloudDining.Controls
             {
                 DateTime tmp;
                 if (minIndex > (tmp = new DateTime(item.StartTime.Year, item.StartTime.Month, item.StartTime.Day, item.StartTime.Hour, item.StartTime.Minute < 30 ? 0 : 30, 0)))
-                    minIndex = item.StartTime;
-                if(maxIndex < (tmp = new DateTime(item.EndTime.Year, item.EndTime.Month, item.EndTime.Day, item.EndTime.Hour, item.EndTime.Minute < 30 ? 30 : 60, 0)))
-                    maxIndex = item.EndTime;
+                    minIndex = tmp;
+                if (maxIndex < (tmp = new DateTime(item.EndTime.Year, item.EndTime.Month, item.EndTime.Day, item.EndTime.Minute < 30 ? item.EndTime.Hour : item.EndTime.Hour + 1, item.EndTime.Minute < 30 ? 30 : 00, 0)))
+                    maxIndex = tmp;
             }
             var len = Math.Max((int)(maxIndex - minIndex).TotalMinutes / 30 + 1, 0);
             var dateGrid = GetDateTimeOffset(this);
             _wallpaperElement.Height = len * GetItemInterval(this);
-
-            for (var i = _wallpaperElement.Children.Count; i < len; i++)
+            _wallpaperElement.Children.Clear();
+            for (var i = 0; i < len; i++)
                 _wallpaperElement.Children.Add(new Border()
                 {
                     HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
@@ -111,8 +109,6 @@ namespace CloudDining.Controls
                         Margin = new Thickness(10, 0, 0, 0),
                     },
                 });
-            for (var i = len; i < _wallpaperElement.Children.Count; i++)
-                _wallpaperElement.Children.RemoveAt(i);
         }
 
         public static double GetItemInterval(DependencyObject obj)
