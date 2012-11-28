@@ -296,4 +296,42 @@ namespace CloudDining.Controls
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
         { throw new NotImplementedException(); }
     }
+    public class SizeConverter : System.Windows.Data.IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            double tmp;
+            double width = 0;
+            double height = 0;
+            if (double.TryParse(((string)parameter).Substring(2), out tmp))
+            {
+                width = (double)value + tmp;
+                height = (double)value + tmp;
+            }
+            switch (((string)parameter)[1])
+            {
+                case 'a':
+                    break;
+                case 'w':
+                    height = 0;
+                    break;
+                case 'h':
+                    width = 0;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            switch (((string)parameter)[0])
+            {
+                case 'p':
+                    return new Point(width, height);
+                case 's':
+                    return new Size(width, height);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        { throw new NotImplementedException(); }
+    }
 }

@@ -5,6 +5,7 @@
 
     <local:CalcConverter x:Key="calcConverter" />
     <local:MultiCalcConverter x:Key="sumConverter" />
+    <local:SizeConverter x:Key="sizeConverter" />
     <DropShadowEffect x:Key="dropShadowEffect" Color="Black" Direction="315" Opacity="0.3" BlurRadius="5" ShadowDepth="0" />
 
     <Style TargetType="{x:Type local:CloudStructure}">
@@ -37,7 +38,25 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <ItemsPresenter />
+                        <Grid>
+                            <Path Fill="#50000000" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                                <Path.Data>
+                                    <PathGeometry>
+                                        <PathFigureCollection>
+                                            <PathFigure StartPoint="0,0" IsClosed="True">
+                                                <ArcSegment Point="{Binding ArcWidth, RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={StaticResource sizeConverter}, ConverterParameter=pw2400.0}"
+                                                            Size="{Binding ArcRadius, RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={StaticResource sizeConverter}, ConverterParameter=sa1200.0}"
+                                                            SweepDirection="Clockwise" IsLargeArc="False" />
+                                                <LineSegment Point="{Binding ArcWidth, RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={StaticResource sizeConverter}, ConverterParameter=pw1200.0}" />
+                                                <ArcSegment Point="1200,0"
+                                                            Size="{Binding ArcRadius, RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={StaticResource sizeConverter}, ConverterParameter=sa0.0}" SweepDirection="Counterclockwise" IsLargeArc="False" />
+                                            </PathFigure>
+                                        </PathFigureCollection>
+                                    </PathGeometry>
+                                </Path.Data>
+                            </Path>
+                            <ItemsPresenter />
+                        </Grid>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

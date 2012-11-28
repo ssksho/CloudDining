@@ -61,7 +61,7 @@
             </s:SurfaceButton>
         </Grid>
         <Grid Name="timeshiftGrid">
-            <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Maximum="0" Minimum="-2520" Background="#40000000" IsManipulationEnabled="True" />
+            <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Maximum="0" Minimum="-2520" IsManipulationEnabled="True" />
             <s:SurfaceSlider VerticalAlignment="Top" Value="{Binding AngleOffset, ElementName=timeshiftDram, Mode=TwoWay}" Maximum="1800" Minimum="-1800" />
             <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button2">
                 <i:Interaction.Triggers>

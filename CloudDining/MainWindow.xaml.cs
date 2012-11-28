@@ -41,8 +41,8 @@ namespace CloudDining
             DataContext = _fieldManager;
 
             var len = TimeSpan.FromHours(8);
-            var aaa = TimeSpan.FromMinutes(10);
-            var kaiten = len.TotalSeconds / aaa.TotalSeconds;
+            var zikanKaitenHiritsu = TimeSpan.FromMinutes(30);
+            var kaiten = len.TotalSeconds / zikanKaitenHiritsu.TotalSeconds;
             timeshiftDram.BeginAnimation(
                 Controls.DramControl.SubAngleOffsetProperty,
                 new System.Windows.Media.Animation.DoubleAnimation(0, 360 * kaiten, (Duration)len));
