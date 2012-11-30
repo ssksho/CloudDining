@@ -7,10 +7,9 @@ using System.Windows.Controls;
 
 namespace CloudDining.Model
 {
-    public class CloudNode : BaseNode
+    public class CloudNode
     {
         public CloudNode(Account owner, Controls.CloudStateType status, int cloudTypeId, DateTime checkinTime, TimeSpan checkinSpan, DateTime? raiseTime = null)
-            : base(raiseTime)
         {
             Owner = owner;
             Status = status;
@@ -23,6 +22,8 @@ namespace CloudDining.Model
         public Account Owner { get; private set; }
         public DateTime CheckinTime { get; private set; }
         public TimeSpan CheckinSpan { get; private set; }
+        public UIElement TimeshiftElement { get; set; }
+        public UIElement HomeElement { get; set; }
         public Controls.CloudStateType Status
         {
             get { return _status; }
