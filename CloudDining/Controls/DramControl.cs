@@ -131,9 +131,9 @@ namespace CloudDining.Controls
         public static readonly DependencyProperty ArcRadiusProperty = ArcRadiusPropertyKey.DependencyProperty;
 
         public static double GetAngleOffset(DependencyObject target)
-        { return (double)target.GetValue(SubAngleOffsetProperty); }
+        { return (double)target.GetValue(AngleOffsetProperty); }
         public static void SetAngleOffset(DependencyObject target, double value)
-        { target.SetValue(SubAngleOffsetProperty, value); }
+        { target.SetValue(AngleOffsetProperty, value); }
         public static double GetArcRadius(DependencyObject target)
         { return (double)target.GetValue(ArcRadiusProperty); }
         static void SetArcRadius(DependencyObject target, double value)
