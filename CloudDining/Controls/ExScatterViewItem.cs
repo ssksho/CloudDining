@@ -21,6 +21,8 @@ namespace CloudDining.Controls
             DefaultStyleKeyProperty.OverrideMetadata(
                 typeof(ExScatterViewItem), new FrameworkPropertyMetadata(typeof(ExScatterViewItem)));
         }
+
+        public event DependencyPropertyChangedEventHandler CenterChanged;
         protected override System.Windows.Size MeasureOverride(System.Windows.Size availableSize)
         {
             UIElement child;
@@ -31,6 +33,12 @@ namespace CloudDining.Controls
                 child.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 return child.DesiredSize;
             }
+        }
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+            if (CenterChanged != null && e.Property == ExScatterViewItem.CenterProperty)
+                CenterChanged(this, e);
         }
     }
 }

@@ -45,7 +45,16 @@
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
-        
+        <Style x:Key="surfaceTemplate" TargetType="{x:Type s:SurfaceButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type s:SurfaceButton}">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </s:SurfaceWindow.Resources>
     <Grid Name="backGrid" Background="Transparent"
           PreviewMouseDown="backGrid_PreviewInputDown" PreviewMouseMove="backGrid_PreviewInputMove" PreviewMouseUp="backGrid_PreviewInputUp"
@@ -71,8 +80,8 @@
                 </i:Interaction.Triggers>
             </s:SurfaceButton>
         </Grid>
-        <s:ScatterView x:Name="detailPanelContainer">
-            <local:ExScatterViewItem CanScale="False" Orientation="0" Center="900,500">
+        <s:ScatterView x:Name="detailPanelContainer" Background="#40000000" Visibility="Collapsed">
+            <local:ExScatterViewItem x:Name="detailScatter" CanScale="False">
                 <local:GanttControl x:Name="detailPanel" HorizontalAlignment="Left" VerticalAlignment="Top" />
             </local:ExScatterViewItem>
         </s:ScatterView>

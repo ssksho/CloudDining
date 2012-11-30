@@ -28,6 +28,7 @@ namespace CloudDining
         {
             InitializeComponent();
             AddWindowAvailabilityHandlers();
+            detailScatter.CenterChanged += detailScatter_CenterChanged;
 
             _loginUserSelecterDevice = new List<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>>();
             _loginUserSelecterPoint = new Dictionary<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>, Point>();
@@ -43,9 +44,13 @@ namespace CloudDining
             var len = TimeSpan.FromHours(8);
             var zikanKaitenHiritsu = TimeSpan.FromMinutes(30);
             var kaiten = len.TotalSeconds / zikanKaitenHiritsu.TotalSeconds;
-            timeshiftDram.BeginAnimation(
-                Controls.DramControl.SubAngleOffsetProperty,
-                new System.Windows.Media.Animation.DoubleAnimation(0, 360 * kaiten, (Duration)len));
+            var timelineAnime = new System.Windows.Media.Animation.DoubleAnimation(0, 360 * kaiten, (Duration)len);
+            System.Windows.Media.Animation.Storyboard.SetTarget(timelineAnime, timeshiftDram);
+            System.Windows.Media.Animation.Storyboard.SetTargetProperty(timelineAnime, new PropertyPath(Controls.DramControl.SubAngleOffsetProperty));
+            _timelineStoryboard = new System.Windows.Media.Animation.Storyboard();
+            _timelineStoryboard.Children.Add(timelineAnime);
+            _timelineStoryboard.Begin(this, true);
+            //timeshiftDram.BeginAnimation(Controls.DramControl.SubAngleOffsetProperty, _timelineStoryboard);
             MinutesToAngleRate = 360 * kaiten / len.TotalMinutes;
         }
         const double LATEST_OFFSET_LINE = -20;
@@ -53,6 +58,7 @@ namespace CloudDining
         Random _rnd;
         DateTime _startAppTime;
         FieldManager _fieldManager;
+        System.Windows.Media.Animation.Storyboard _timelineStoryboard;
         List<Tuple<InputDevice, DispatcherTimer>> _loginUserSelecterDevice;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, ElementMenu> _loginUserSelecterMenu;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, Point> _loginUserSelecterPoint;
@@ -160,11 +166,12 @@ namespace CloudDining
                             var grid = new Grid();
                             var dramItem = new Controls.DramItem()
                             {
-                                Content = grid,
+                                Content = new SurfaceButton() { Content = grid, Background = null, Style = (Style)FindResource("surfaceTemplate"), },
                                 Angle = (_startAppTime - item.RaiseTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
                                 Track = _rnd.Next(20) * 30,
                             };
-                            dramItem.MouseUp += dramItem_MouseUp;
+                            ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
+                            ((SurfaceButton)dramItem.Content).Tag = dramItem;
                             dramItem.Tag = item;
                             item.TimeshiftElement = dramItem;
                             timeshiftDram.Items.Add(dramItem);
@@ -182,20 +189,19 @@ namespace CloudDining
             }));
         }
 
-        void dramItem_MouseUp(object sender, MouseButtonEventArgs e)
+        void detailScatter_CenterChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var dramItem = (Controls.DramItem)sender;
-            var complexCloud = (ComplexCloudNode)dramItem.Tag;
-
-            detailPanel.Items.Clear();
-            foreach (var item in complexCloud.Children)
-                detailPanel.Items.Add(new Controls.GanttItem()
+            var point = (Point)e.NewValue;
+            if (detailScatter.IsMouseOver == false)
+            {
+                var width = detailPanelContainer.ActualWidth;
+                var height = detailPanelContainer.ActualHeight;
+                if (width - point.X < 20 || height - point.Y < 20 || point.X < 20 || point.Y < 20)
                 {
-                    StartTime = item.CheckinTime,
-                    //EndTime = item.CheckinTime.Add(item.CheckinSpan),
-                    EndTime = item.CheckinTime.AddMinutes(30),
-                    HeadIcon = item.Owner.Icon,
-                });
+                    detailPanelContainer.Visibility = System.Windows.Visibility.Collapsed;
+                    _timelineStoryboard.Resume(this);
+                }
+            }
         }
         void CloudComplex_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -203,7 +209,7 @@ namespace CloudDining
             {
                 var complexCloud = (ComplexCloudNode)sender;
                 var dramItem = (Controls.DramItem)complexCloud.TimeshiftElement;
-                var grid = (Grid)dramItem.Content;
+                var grid = (Grid)((SurfaceButton)dramItem.Content).Content;
 
                 switch (e.Action)
                 {
@@ -234,6 +240,26 @@ namespace CloudDining
                         break;
                 }
             }));
+        }
+        void DramItem_Click(object sender, RoutedEventArgs e)
+        {
+            var dramItem = (Controls.DramItem)((SurfaceButton)sender).Tag;
+            var complexCloud = (ComplexCloudNode)dramItem.Tag;
+
+            _timelineStoryboard.Pause(this);
+
+            detailPanelContainer.Visibility = System.Windows.Visibility.Visible;
+            detailScatter.Center = new Point(900, 500);
+            detailScatter.Orientation = 0.0;
+            detailPanel.Items.Clear();
+            foreach (var item in complexCloud.Children)
+                detailPanel.Items.Add(new Controls.GanttItem()
+                {
+                    StartTime = item.CheckinTime,
+                    //EndTime = item.CheckinTime.Add(item.CheckinSpan),
+                    EndTime = item.CheckinTime.AddMinutes(30),
+                    HeadIcon = item.Owner.Icon,
+                });
         }
 
         protected override void OnClosed(EventArgs e)
