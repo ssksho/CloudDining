@@ -176,6 +176,36 @@
     <Resource Include="Resources\Clouds\cloudImage28_1.png" />
     <Resource Include="Resources\Clouds\cloudImage29_0.png" />
     <Resource Include="Resources\Clouds\cloudImage29_1.png" />
+    <Resource Include="Resources\Clouds\cloudImage00_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage01_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage02_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage03_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage04_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage05_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage06_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage07_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage08_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage09_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage10_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage11_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage12_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage13_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage14_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage15_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage16_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage17_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage18_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage19_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage20_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage21_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage22_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage23_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage24_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage25_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage26_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage27_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage28_2.png" />
+    <Resource Include="Resources\Clouds\cloudImage29_2.png" />
     <Content Include="Resources\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
