@@ -13,10 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Windows.Media.Animation;
 using Microsoft.Surface;
 using Microsoft.Surface.Presentation;
 using Microsoft.Surface.Presentation.Controls;
 using Microsoft.Surface.Presentation.Input;
+using CloudDining.Controls;
 
 namespace CloudDining
 {
@@ -59,10 +61,16 @@ namespace CloudDining
         BaseNode _openingNode;
         DateTime _startAppTime;
         FieldManager _fieldManager;
-        System.Windows.Media.Animation.Storyboard _timelineStoryboard;
+        Storyboard _timelineStoryboard;
         List<Tuple<InputDevice, DispatcherTimer>> _loginUserSelecterDevice;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, ElementMenu> _loginUserSelecterMenu;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, Point> _loginUserSelecterPoint;
+        //佐々木追加
+        List<Storyboard> storyboards = new List<Storyboard>();
+        Storyboard storyboard;
+        CloudStructure cld;
+        PlaneControl plane;
+        int count;
 
         public void ShowPopupInfo(ComplexCloudNode node)
         {
@@ -119,6 +127,69 @@ namespace CloudDining
             detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
             detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
             _timelineStoryboard.Resume(this);
+        }
+        CloudStructure createStoryBoardCLD()
+        {
+            var xtime = _rnd.Next(20000, 50000);
+            var ytime = _rnd.Next(20000, 50000);
+            var typeID = _rnd.Next(30);
+            int[] hw = new int[4] { 0, 0, 0, 0 };
+            CloudStructure cld = new CloudStructure();
+            count = storyboards.Count;
+            var x = ActualHeight;
+            var y = ActualWidth;
+            cld.CloudTypeId = typeID;
+            cld.CloudStatus = (CloudStateType)_rnd.Next(2);
+            //cld.MouseDown += detailDisplayCld;
+            cld.Tag = count;
+            //homeGrid.Children.Add(cld);
+
+            var i = _rnd.Next(2);
+            hw[i] = _rnd.Next(hw[(i + 2)]);
+
+            storyboard = new Storyboard();
+            var animation = new DoubleAnimationUsingKeyFrames
+            {
+                RepeatBehavior = RepeatBehavior.Forever,
+                AutoReverse = true
+            };
+            var frame = new EasingDoubleKeyFrame(x, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(xtime)));
+            if (_rnd.Next(2) > 0)
+            {
+                Canvas.SetRight(cld, hw[0]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Right)"));
+            }
+            else
+            {
+                Canvas.SetLeft(cld, hw[0]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Left)"));
+            }
+            animation.KeyFrames.Add(frame);
+            storyboard.Children.Add(animation);
+
+            animation = new DoubleAnimationUsingKeyFrames
+            {
+                RepeatBehavior = RepeatBehavior.Forever,
+                AutoReverse = true
+            };
+            frame = new EasingDoubleKeyFrame(y, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ytime)));
+            if (_rnd.Next(2) > 0)
+            {
+                Canvas.SetTop(cld, hw[1]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Top)"));
+            }
+            else
+            {
+                Canvas.SetBottom(cld, hw[1]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Bottom)"));
+            }
+
+            animation.KeyFrames.Add(frame);
+            storyboard.Children.Add(animation);
+
+            storyboards.Add(storyboard);
+            storyboards[count].Begin(cld, true);
+            return cld;
         }
 
         //ログイン時のユーザ選択の実装
@@ -191,6 +262,7 @@ namespace CloudDining
                     case NotifyCollectionChangedAction.Add:
                         foreach (var item in e.NewItems.OfType<ComplexCloudNode>())
                         {
+                            /*
                             var grid = new Grid();
                             grid.Width = 100;
                             grid.Height = 100;
@@ -198,6 +270,12 @@ namespace CloudDining
                             item.ChildrenChanged += CloudComplex_ChildrenChanged;
                             item.HomeElement = grid;
                             homeGrid.Children.Add(grid);
+                            */
+                            var cld = createStoryBoardCLD(); cld.Height = 200; cld.Width = 300;
+                            item.ChildrenChanged += CloudComplex_ChildrenChanged;
+                            item.HomeElement = cld;
+                            homeGrid.Children.Add(cld);
+
                         }
                         foreach (var item in e.NewItems.OfType<PlaneNode>())
                         {
