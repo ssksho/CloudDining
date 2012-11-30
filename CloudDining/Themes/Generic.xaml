@@ -31,6 +31,22 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style TargetType="{x:Type local:PlaneControl}">
+        <Style.Resources>
+            <local:PlaneTypeIdToUriConverter x:Key="planeTypeIdToUriConverter" />
+        </Style.Resources>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:PlaneControl}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Image Source="{Binding PlaneStatus, RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={StaticResource planeTypeIdToUriConverter}}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style TargetType="{x:Type local:DramControl}">
         <Setter Property="Template">
             <Setter.Value>

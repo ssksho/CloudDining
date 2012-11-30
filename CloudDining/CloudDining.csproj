@@ -68,6 +68,7 @@
     <Compile Include="Controls\DramControl.cs" />
     <Compile Include="Controls\ExScatterViewItem.cs" />
     <Compile Include="Controls\GanttControl.cs" />
+    <Compile Include="Controls\PlaneControl.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -109,6 +110,8 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Planes\plane_Left.png" />
+    <Resource Include="Resources\Planes\plane_Right.png" />
     <Resource Include="Resources\wallpaper.jpg" />
     <Resource Include="Resources\Clouds\cloudImage00_0.png" />
     <Resource Include="Resources\Clouds\cloudImage00_1.png" />
@@ -194,6 +197,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
