@@ -188,7 +188,6 @@ namespace CloudDining
                 }
             }));
         }
-
         void detailScatter_CenterChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             var point = (Point)e.NewValue;

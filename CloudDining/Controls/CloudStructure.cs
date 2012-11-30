@@ -67,7 +67,7 @@ namespace CloudDining.Controls
         public static readonly DependencyProperty CloudStatusProperty = DependencyProperty.Register(
             "CloudStatus", typeof(CloudStateType), typeof(CloudStructure), new UIPropertyMetadata(CloudStateType.Sunny));
     }
-    public enum CloudStateType { Sunny, Cloudy, Rainy }
+    public enum CloudStateType { Sunny, Rainy, Thunder }
     public class CloudTypeIdToUriConverter : System.Windows.Data.IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)

@@ -28,9 +28,9 @@ namespace CloudDining.Model
             Icon = icon;
             StatusSelecter = new List<CheckinStateViewModel>()
             {
-                new CheckinStateViewModel(this, "晴天", Controls.CloudStateType.Sunny, new Uri("/Resources/Wathers/sunny.jpg", UriKind.Relative), App.Current.Dispatcher),
-                new CheckinStateViewModel(this, "曇天", Controls.CloudStateType.Cloudy, new Uri("/Resources/Wathers/cloudy.jpg", UriKind.Relative), App.Current.Dispatcher),
-                new CheckinStateViewModel(this, "雨天", Controls.CloudStateType.Rainy, new Uri("/Resources/Wathers/rainy.jpg", UriKind.Relative), App.Current.Dispatcher),
+                new CheckinStateViewModel(this, null, Controls.CloudStateType.Sunny, new Uri("/Resources/Wathers/sunny.png", UriKind.Relative), App.Current.Dispatcher),
+                new CheckinStateViewModel(this, null, Controls.CloudStateType.Rainy, new Uri("/Resources/Wathers/rainy.png", UriKind.Relative), App.Current.Dispatcher),
+                new CheckinStateViewModel(this, null, Controls.CloudStateType.Thunder, new Uri("/Resources/Wathers/thunder.png", UriKind.Relative), App.Current.Dispatcher),
             };
         }
         
