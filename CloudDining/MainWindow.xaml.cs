@@ -225,6 +225,7 @@ namespace CloudDining
                                     complexCloud.Children.Count * 15,
                                     complexCloud.Children.Count * 15),
                                 Tag = item,
+                                Effect = complexCloud.Children.Count == 1 ? null : (System.Windows.Media.Effects.DropShadowEffect)FindResource("dropShadowEffectA")
                             };
                             item.TimeshiftElement = cloudStructure;
                             grid.Children.Add(cloudStructure);

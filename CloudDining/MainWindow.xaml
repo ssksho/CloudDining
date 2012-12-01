@@ -45,6 +45,7 @@
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
+        <DropShadowEffect x:Key="dropShadowEffectA" Color="Black" Direction="135" Opacity="0.5" BlurRadius="5" ShadowDepth="5" />
         <Style x:Key="surfaceTemplate" TargetType="{x:Type s:SurfaceButton}">
             <Setter Property="Template">
                 <Setter.Value>
