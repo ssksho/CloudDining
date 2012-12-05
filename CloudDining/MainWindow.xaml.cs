@@ -190,10 +190,11 @@ namespace CloudDining
                             {
                                 Content = new SurfaceButton()
                                 {
-                                    Content = new Controls.PlaneControl()
+                                    Content = new Image()
                                     {
-                                        PlaneStatus = Controls.PlaneStateType.Right,
-                                        Width = 100, Height = 80,
+                                        Height = 130,
+                                        Source = new BitmapImage(item.Picture),
+                                        Effect = (System.Windows.Media.Effects.Effect)FindResource("dropShadowEffectB"),
                                     },
                                     Background = null,
                                     Style = (Style)FindResource("surfaceTemplate"),
@@ -204,6 +205,9 @@ namespace CloudDining
                             ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
                             ((SurfaceButton)dramItem.Content).Tag = dramItem;
                             dramItem.Tag = item;
+                            dramItem.BeginAnimation(
+                                Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0,
+                                (Duration)TimeSpan.FromMilliseconds(500)));
                             item.TimeshiftElement = dramItem;
                             timeshiftDram.Items.Add(dramItem);
                         }
@@ -229,7 +233,12 @@ namespace CloudDining
                 var height = detailPanelContainer.ActualHeight;
                 if (width - point.X < 20 || height - point.Y < 20 || point.X < 20 || point.Y < 20)
                 {
-                    detailPanelContainer.Visibility = System.Windows.Visibility.Collapsed;
+                    var bbb = TimeSpan.FromMilliseconds(50);
+                    var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
+                    aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
+                    aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Hidden, System.Windows.Media.Animation.KeyTime.FromTimeSpan(bbb)));
+                    detailPanelContainer.BeginAnimation(Control.VisibilityProperty,  aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+                    detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
                     _timelineStoryboard.Resume(this);
                 }
             }
@@ -303,7 +312,12 @@ namespace CloudDining
                 detailImage.Source = new BitmapImage(plane.Picture);
             }
             _timelineStoryboard.Pause(this);
-            detailPanelContainer.Visibility = System.Windows.Visibility.Visible;
+
+            var bbb = TimeSpan.FromMilliseconds(150);
+            var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
+            aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+            detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
         }
         void SurfaceButton_Click(object sender, RoutedEventArgs e)
         {
