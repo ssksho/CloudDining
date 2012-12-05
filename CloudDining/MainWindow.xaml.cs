@@ -29,6 +29,7 @@ namespace CloudDining
             InitializeComponent();
             AddWindowAvailabilityHandlers();
             detailScatter.CenterChanged += detailScatter_CenterChanged;
+            pictureScatter.CenterChanged += detailScatter_CenterChanged;
 
             _loginUserSelecterDevice = new List<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>>();
             _loginUserSelecterPoint = new Dictionary<Tuple<InputDevice, System.Windows.Threading.DispatcherTimer>, Point>();
@@ -141,6 +142,13 @@ namespace CloudDining
                             item.HomeElement = grid;
                             homeGrid.Children.Add(grid);
                         }
+                        foreach (var item in e.NewItems.OfType<PlaneNode>())
+                        {
+                            var grid = new Controls.PlaneControl() { PlaneStatus = Controls.PlaneStateType.Right };
+                            grid.Width = 100;
+                            grid.Height = 100;
+                            homeGrid.Children.Add(grid);
+                        }
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         foreach (var item in e.OldItems.OfType<ComplexCloudNode>())
@@ -176,13 +184,37 @@ namespace CloudDining
                             item.TimeshiftElement = dramItem;
                             timeshiftDram.Items.Add(dramItem);
                         }
+                        foreach (var item in e.NewItems.OfType<PlaneNode>())
+                        {
+                            var dramItem = new Controls.DramItem()
+                            {
+                                Content = new SurfaceButton()
+                                {
+                                    Content = new Controls.PlaneControl()
+                                    {
+                                        PlaneStatus = Controls.PlaneStateType.Right,
+                                        Width = 100, Height = 80,
+                                    },
+                                    Background = null,
+                                    Style = (Style)FindResource("surfaceTemplate"),
+                                },
+                                Angle = (_startAppTime - item.RaiseTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
+                                Track = _rnd.Next(20) * 30,
+                            };
+                            ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
+                            ((SurfaceButton)dramItem.Content).Tag = dramItem;
+                            dramItem.Tag = item;
+                            item.TimeshiftElement = dramItem;
+                            timeshiftDram.Items.Add(dramItem);
+                        }
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         foreach (var item in e.OldItems.OfType<ComplexCloudNode>())
+                            item.ChildrenChanged -= CloudComplex_ChildrenChanged;
+                        foreach (var item in e.OldItems.OfType<BaseNode>())
                         {
                             var dramItem = item.TimeshiftElement;
                             timeshiftDram.Items.Remove(dramItem);
-                            item.ChildrenChanged -= CloudComplex_ChildrenChanged;
                         }
                         break;
                 }
@@ -244,22 +276,43 @@ namespace CloudDining
         void DramItem_Click(object sender, RoutedEventArgs e)
         {
             var dramItem = (Controls.DramItem)((SurfaceButton)sender).Tag;
-            var complexCloud = (ComplexCloudNode)dramItem.Tag;
-
+            if (dramItem.Tag is ComplexCloudNode)
+            {
+                var complexCloud = (ComplexCloudNode)dramItem.Tag;
+                pictureScatter.Visibility = System.Windows.Visibility.Collapsed;
+                detailScatter.Visibility = System.Windows.Visibility.Visible;
+                detailScatter.Center = new Point(900, 500);
+                detailScatter.Orientation = 0.0;
+                detailPanel.Items.Clear();
+                foreach (var item in complexCloud.Children)
+                    detailPanel.Items.Add(new Controls.GanttItem()
+                    {
+                        StartTime = item.CheckinTime,
+                        //EndTime = item.CheckinTime.Add(item.CheckinSpan),
+                        EndTime = item.CheckinTime.AddMinutes(30),
+                        HeadIcon = item.Owner.Icon,
+                    });
+            }
+            else if (dramItem.Tag is PlaneNode)
+            {
+                var plane = (PlaneNode)dramItem.Tag;
+                detailScatter.Visibility = System.Windows.Visibility.Collapsed;
+                pictureScatter.Visibility = System.Windows.Visibility.Visible;
+                pictureScatter.Center = new Point(900, 500);
+                pictureScatter.Orientation = 0.0;
+                detailImage.Source = new BitmapImage(plane.Picture);
+            }
             _timelineStoryboard.Pause(this);
-
             detailPanelContainer.Visibility = System.Windows.Visibility.Visible;
-            detailScatter.Center = new Point(900, 500);
-            detailScatter.Orientation = 0.0;
-            detailPanel.Items.Clear();
-            foreach (var item in complexCloud.Children)
-                detailPanel.Items.Add(new Controls.GanttItem()
-                {
-                    StartTime = item.CheckinTime,
-                    //EndTime = item.CheckinTime.Add(item.CheckinSpan),
-                    EndTime = item.CheckinTime.AddMinutes(30),
-                    HeadIcon = item.Owner.Icon,
-                });
+        }
+        void SurfaceButton_Click(object sender, RoutedEventArgs e)
+        {
+            DataCacheDictionary.DownloadUserIcon(new Uri("https://lh3.googleusercontent.com/-_EKZ1xMSe8M/UEiC5bvR5jI/AAAAAAAACzE/nuFW2QY647c/s576/06+-+1"))
+                .ContinueWith(tsk =>
+                    {
+                        _fieldManager.PostPlane(
+                            new PlaneNode(tsk.Result, _fieldManager.Users.First(), null));
+                    });
         }
 
         protected override void OnClosed(EventArgs e)

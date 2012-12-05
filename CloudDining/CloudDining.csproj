@@ -69,6 +69,7 @@
     <Compile Include="Controls\ExScatterViewItem.cs" />
     <Compile Include="Controls\GanttControl.cs" />
     <Compile Include="Controls\PlaneControl.cs" />
+    <Compile Include="DataCacheDictionary.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

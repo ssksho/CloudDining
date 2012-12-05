@@ -80,10 +80,14 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </s:SurfaceButton>
+            <s:SurfaceButton HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="PostPlane" Click="SurfaceButton_Click" />
         </Grid>
         <s:ScatterView x:Name="detailPanelContainer" Background="#40000000" Visibility="Collapsed">
             <local:ExScatterViewItem x:Name="detailScatter" CanScale="False">
                 <local:GanttControl x:Name="detailPanel" HorizontalAlignment="Left" VerticalAlignment="Top" />
+            </local:ExScatterViewItem>
+            <local:ExScatterViewItem x:Name="pictureScatter" CanScale="False">
+                <Image Name="detailImage" HorizontalAlignment="Left" VerticalAlignment="Top" />
             </local:ExScatterViewItem>
         </s:ScatterView>
         <s:ElementMenu ItemsSource="{Binding Users}" Name="loginUserSelecter" ActivationMode="AlwaysActive" Visibility="Hidden" VerticalAlignment="Top" HorizontalAlignment="Left" SubmenuClosed="loginUserSelecter_SubmenuClosed">
