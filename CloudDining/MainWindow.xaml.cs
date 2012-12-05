@@ -9,16 +9,16 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Windows.Media.Animation;
+using CloudDining.Controls;
 using Microsoft.Surface;
 using Microsoft.Surface.Presentation;
 using Microsoft.Surface.Presentation.Controls;
 using Microsoft.Surface.Presentation.Input;
-using CloudDining.Controls;
 
 namespace CloudDining
 {
@@ -68,9 +68,10 @@ namespace CloudDining
         //佐々木追加
         List<Storyboard> storyboards = new List<Storyboard>();
         Storyboard storyboard;
-        CloudStructure cld;
+        CloudStructure cloud;
         PlaneControl plane;
         int count;
+        int[] hw = new int[4] { 0, 0, 0, 0 };
 
         public void ShowPopupInfo(ComplexCloudNode node)
         {
@@ -133,17 +134,18 @@ namespace CloudDining
             var xtime = _rnd.Next(20000, 50000);
             var ytime = _rnd.Next(20000, 50000);
             var typeID = _rnd.Next(30);
-            int[] hw = new int[4] { 0, 0, 0, 0 };
-            CloudStructure cld = new CloudStructure();
+            
+            cloud = new CloudStructure();
             count = storyboards.Count;
-            var x = ActualHeight;
-            var y = ActualWidth;
-            cld.CloudTypeId = typeID;
-            cld.CloudStatus = (CloudStateType)_rnd.Next(2);
-            //cld.MouseDown += detailDisplayCld;
-            cld.Tag = count;
-            //homeGrid.Children.Add(cld);
+            var x = ActualWidth;
+            var y = ActualHeight;
+            cloud.CloudTypeId = typeID;
+            //cloud.CloudStatus = (CloudStateType)_rnd.Next(2);
+            //cloud.MouseDown += detailDisplayCld;
+            cloud.Tag = count;
 
+            hw[2] = (int)x;
+            hw[3] = (int)y;
             var i = _rnd.Next(2);
             hw[i] = _rnd.Next(hw[(i + 2)]);
 
@@ -156,12 +158,12 @@ namespace CloudDining
             var frame = new EasingDoubleKeyFrame(x, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(xtime)));
             if (_rnd.Next(2) > 0)
             {
-                Canvas.SetRight(cld, hw[0]);
+                Canvas.SetRight(cloud, hw[0]);
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Right)"));
             }
             else
             {
-                Canvas.SetLeft(cld, hw[0]);
+                Canvas.SetLeft(cloud, hw[0]);
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Left)"));
             }
             animation.KeyFrames.Add(frame);
@@ -175,12 +177,12 @@ namespace CloudDining
             frame = new EasingDoubleKeyFrame(y, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ytime)));
             if (_rnd.Next(2) > 0)
             {
-                Canvas.SetTop(cld, hw[1]);
+                Canvas.SetTop(cloud, hw[1]);
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Top)"));
             }
             else
             {
-                Canvas.SetBottom(cld, hw[1]);
+                Canvas.SetBottom(cloud, hw[1]);
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Bottom)"));
             }
 
@@ -188,8 +190,68 @@ namespace CloudDining
             storyboard.Children.Add(animation);
 
             storyboards.Add(storyboard);
-            storyboards[count].Begin(cld, true);
-            return cld;
+            storyboards[count].Begin(cloud, true);
+            return cloud;
+        }
+        PlaneControl createStoryBoardPlane()
+        {
+            var xtime = _rnd.Next(2000, 5000);
+            var ytime = _rnd.Next(2000, 5000);
+
+            plane = new PlaneControl();
+            count = storyboards.Count;
+            var x = ActualWidth;
+            var y = ActualHeight;
+            //plane.MouseDown += detailDisplayPlane;
+            plane.Tag = count;
+
+            hw[1] = _rnd.Next((int)y);
+
+            storyboard = new Storyboard();
+            var animation = new DoubleAnimationUsingKeyFrames
+            {
+                RepeatBehavior = new RepeatBehavior((double)1.0),
+                AutoReverse = false
+            };
+            var frame = new EasingDoubleKeyFrame(x, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(xtime)));
+            if (_rnd.Next(2) > 0)
+            {
+                plane.PlaneStatus = PlaneStateType.Left;
+                Canvas.SetRight(plane, hw[0]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Right)"));
+            }
+            else
+            {
+                plane.PlaneStatus = PlaneStateType.Right;
+                Canvas.SetLeft(plane, hw[0]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Left)"));
+            }
+            animation.KeyFrames.Add(frame);
+            storyboard.Children.Add(animation);
+
+            animation = new DoubleAnimationUsingKeyFrames
+            {
+                RepeatBehavior = new RepeatBehavior((double)1.0),
+                AutoReverse = false
+            };
+            frame = new EasingDoubleKeyFrame(y, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ytime)));
+            if (_rnd.Next(2) > 0)
+            {
+                Canvas.SetTop(plane, hw[1]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Top)"));
+            }
+            else
+            {
+                Canvas.SetBottom(plane, hw[1]);
+                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Bottom)"));
+            }
+
+            animation.KeyFrames.Add(frame);
+            storyboard.Children.Add(animation);
+
+            storyboards.Add(storyboard);
+            storyboards[count].Begin(plane, true);
+            return plane;
         }
 
         //ログイン時のユーザ選択の実装
@@ -262,27 +324,32 @@ namespace CloudDining
                     case NotifyCollectionChangedAction.Add:
                         foreach (var item in e.NewItems.OfType<ComplexCloudNode>())
                         {
-                            /*
-                            var grid = new Grid();
-                            grid.Width = 100;
-                            grid.Height = 100;
-                            grid.Background = Brushes.Aqua;
-                            item.ChildrenChanged += CloudComplex_ChildrenChanged;
-                            item.HomeElement = grid;
-                            homeGrid.Children.Add(grid);
-                            */
-                            var cld = createStoryBoardCLD(); cld.Height = 200; cld.Width = 300;
+                            var cld = createStoryBoardCLD();
+                            cld.Height = 200;
+                            cld.Width = 300;
                             item.ChildrenChanged += CloudComplex_ChildrenChanged;
                             item.HomeElement = cld;
                             homeGrid.Children.Add(cld);
+                            
 
+                            var grid = new Grid();
+                            var dramItem = new Controls.DramItem()
+                            {
+                                Content = new SurfaceButton() { Content = grid, Background = null, Style = (Style)FindResource("surfaceTemplate"), }
+                            };
+                            ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
+                            ((SurfaceButton)dramItem.Content).Tag = dramItem;
+                            dramItem.Tag = item;
+                            //item.HomeElement = dramItem;
+                            //homeGrid.Children.Add(dramItem);
                         }
                         foreach (var item in e.NewItems.OfType<PlaneNode>())
                         {
-                            var grid = new Controls.PlaneControl() { PlaneStatus = Controls.PlaneStateType.Right };
-                            grid.Width = 100;
-                            grid.Height = 100;
-                            homeGrid.Children.Add(grid);
+                            var pln = createStoryBoardPlane();
+                            pln.Height = 150;
+                            pln.Width = 200;
+                            item.HomeElement = pln;
+                            homeGrid.Children.Add(pln);
                         }
                         break;
                     case NotifyCollectionChangedAction.Remove:
@@ -291,6 +358,11 @@ namespace CloudDining
                             var dramItem = item.HomeElement;
                             homeGrid.Children.Remove(dramItem);
                             item.ChildrenChanged -= CloudComplex_ChildrenChanged;
+                        }
+                        foreach (var item in e.OldItems.OfType<PlaneNode>())
+                        {
+                            var dramItem = item.HomeElement;
+                            homeGrid.Children.Remove(dramItem);
                         }
                         break;
                 }

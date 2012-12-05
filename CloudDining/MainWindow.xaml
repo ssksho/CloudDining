@@ -66,9 +66,10 @@
           PreviewMouseDown="backGrid_PreviewInputDown" PreviewMouseMove="backGrid_PreviewInputMove" PreviewMouseUp="backGrid_PreviewInputUp"
           PreviewTouchDown="backGrid_PreviewInputDown" PreviewTouchMove="backGrid_PreviewInputMove" PreviewTouchUp="backGrid_PreviewInputUp">
         <Image Source="/Resources/wallpaper.jpg" Stretch="UniformToFill" />
-        <Grid Name="homeGrid">
+        <Canvas Name="homeGrid">
             <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="ChangeMode" Click="btn_ChangeMode_Click" />
-        </Grid>
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="120,15,15,15" Content="PostPlane" Click="btn_PostPlane_Click" />
+        </Canvas>
         <Grid Name="timeshiftGrid">
             <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Maximum="0" Minimum="-2520" IsManipulationEnabled="True" />
             <s:SurfaceSlider VerticalAlignment="Top" Value="{Binding AngleOffset, ElementName=timeshiftDram, Mode=TwoWay}" Maximum="1800" Minimum="-1800" />
