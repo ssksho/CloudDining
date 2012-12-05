@@ -134,6 +134,10 @@ namespace CloudDining.Controls
         { return (double)target.GetValue(AngleOffsetProperty); }
         public static void SetAngleOffset(DependencyObject target, double value)
         { target.SetValue(AngleOffsetProperty, value); }
+        public static double GetSubAngleOffset(DependencyObject target)
+        { return (double)target.GetValue(SubAngleOffsetProperty); }
+        public static void SetSubAngleOffset(DependencyObject target, double value)
+        { target.SetValue(SubAngleOffsetProperty, value); }
         public static double GetArcRadius(DependencyObject target)
         { return (double)target.GetValue(ArcRadiusProperty); }
         static void SetArcRadius(DependencyObject target, double value)
@@ -209,7 +213,7 @@ namespace CloudDining.Controls
         }
         public void UpdateVisibility()
         {
-            Visibility = Math.Abs(Angle - DramControl.GetAngleOffset(this)) < 180
+            Visibility = Math.Abs(Angle - DramControl.GetAngleOffset(this) - DramControl.GetSubAngleOffset(this)) < 180
                 ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
         void DramItem_Loaded(object sender, RoutedEventArgs e)

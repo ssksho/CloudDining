@@ -93,7 +93,7 @@
         <Setter Property="RenderTransform">
             <Setter.Value>
                 <TransformGroup>
-                    <RotateTransform Angle="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramItem}}}"
+                    <RotateTransform Angle="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramItem}}, Converter={StaticResource calcConverter}, ConverterParameter=signInversion}"
                                      CenterX="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DramItem}}, Converter={StaticResource calcConverter}, ConverterParameter=half}">
                         <RotateTransform.CenterY>
                             <MultiBinding Converter="{StaticResource sumConverter}" ConverterParameter="sum">

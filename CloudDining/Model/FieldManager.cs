@@ -55,8 +55,11 @@ namespace CloudDining.Model
 
         public void PostPlane(PlaneNode data)
         {
-            _homeNodes.Add(data);
-            _timelineNodes.Add(data);
+            lock (_homeNodes)
+            {
+                _homeNodes.Add(data);
+                _timelineNodes.Add(data);
+            }
         }
         public void AddUser(Account target)
         {
@@ -105,8 +108,11 @@ namespace CloudDining.Model
                 if (item.RaiseTime > checkinTime)
                     item.Children.Add(cloudNode);
 
-            _homeNodes.Add(complexNode);
-            _timelineNodes.Add(complexNode);
+            lock (_homeNodes)
+            {
+                _homeNodes.Add(complexNode);
+                _timelineNodes.Add(complexNode);
+            }
             System.Diagnostics.Debug.WriteLine("DebugWriteLine: Checkout", target.Name);
             OnCheckouted(new ExEventArgs<Account>(target));
 

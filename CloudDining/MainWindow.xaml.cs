@@ -54,7 +54,7 @@ namespace CloudDining
             //timeshiftDram.BeginAnimation(Controls.DramControl.SubAngleOffsetProperty, _timelineStoryboard);
             MinutesToAngleRate = 360 * kaiten / len.TotalMinutes;
         }
-        const double LATEST_OFFSET_LINE = -20;
+        const double LATEST_OFFSET_LINE = 20;
         double MinutesToAngleRate;
         Random _rnd;
         DateTime _startAppTime;
@@ -175,7 +175,7 @@ namespace CloudDining
                             var dramItem = new Controls.DramItem()
                             {
                                 Content = new SurfaceButton() { Content = grid, Background = null, Style = (Style)FindResource("surfaceTemplate"), },
-                                Angle = (_startAppTime - item.RaiseTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
+                                Angle = (item.RaiseTime - _startAppTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
                                 Track = _rnd.Next(20) * 30,
                             };
                             ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
@@ -198,7 +198,7 @@ namespace CloudDining
                                     Background = null,
                                     Style = (Style)FindResource("surfaceTemplate"),
                                 },
-                                Angle = (_startAppTime - item.RaiseTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
+                                Angle = (item.RaiseTime - _startAppTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
                                 Track = _rnd.Next(20) * 30,
                             };
                             ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
