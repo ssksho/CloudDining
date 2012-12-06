@@ -33,6 +33,7 @@ namespace CloudDining.Model
         }
         Random _rnd;
         ActiveModeType _mode;
+        BaseNode _openingNode;
         Dictionary<Account, DateTime> _userCheckinTime;
         Dictionary<object, System.Threading.Timer> _lifeTimer;
         ObservableCollection<Account> _users;
@@ -55,6 +56,7 @@ namespace CloudDining.Model
 
         public void PostPlane(PlaneNode data)
         {
+            data.IsOpenedChanged += complexNode_IsOpenedChanged;
             lock (_homeNodes)
             {
                 _homeNodes.Add(data);
@@ -113,7 +115,7 @@ namespace CloudDining.Model
                 _homeNodes.Add(complexNode);
                 _timelineNodes.Add(complexNode);
             }
-            System.Diagnostics.Debug.WriteLine("DebugWriteLine: Checkout", target.Name);
+            complexNode.IsOpenedChanged += complexNode_IsOpenedChanged;
             OnCheckouted(new ExEventArgs<Account>(target));
 
             complexNode.Children.Add(cloudNode);
@@ -144,6 +146,17 @@ namespace CloudDining.Model
             state[1] = param;
             state[2] = handler;
             timer.Change(delaySecounds * 1000, System.Threading.Timeout.Infinite);
+        }
+        void complexNode_IsOpenedChanged(object sender, ExEventArgs<bool> e)
+        {
+            if (e.Value)
+            {
+                if (_openingNode != null && sender != _openingNode)
+                    _openingNode.Close();
+                _openingNode = (BaseNode)sender;
+            }
+            else
+                _openingNode = null;
         }
         void lifeTimer_Fired<T>(object state)
         {

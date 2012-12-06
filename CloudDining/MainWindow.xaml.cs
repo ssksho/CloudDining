@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -57,12 +57,70 @@ namespace CloudDining
         const double LATEST_OFFSET_LINE = 20;
         double MinutesToAngleRate;
         Random _rnd;
+        BaseNode _openingNode;
         DateTime _startAppTime;
         FieldManager _fieldManager;
         System.Windows.Media.Animation.Storyboard _timelineStoryboard;
         List<Tuple<InputDevice, DispatcherTimer>> _loginUserSelecterDevice;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, ElementMenu> _loginUserSelecterMenu;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, Point> _loginUserSelecterPoint;
+
+        public void ShowPopupInfo(ComplexCloudNode node)
+        {
+            node.Open();
+            _openingNode = node;
+            pictureScatter.Visibility = System.Windows.Visibility.Collapsed;
+            detailScatter.Visibility = System.Windows.Visibility.Visible;
+            detailScatter.Center = new Point(900, 500);
+            detailScatter.Orientation = 0.0;
+            detailPanel.Items.Clear();
+            foreach (var item in node.Children)
+                detailPanel.Items.Add(new Controls.GanttItem()
+                {
+                    StartTime = item.CheckinTime,
+                    //EndTime = item.CheckinTime.Add(item.CheckinSpan),
+                    EndTime = item.CheckinTime.AddMinutes(30),
+                    HeadIcon = item.Owner.Icon,
+                });
+
+            var bbb = TimeSpan.FromMilliseconds(150);
+            var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
+            aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+            detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+
+            _timelineStoryboard.Pause(this);
+        }
+        public void ShowPopupInfo(PlaneNode node)
+        {
+            node.Open();
+            _openingNode = node;
+            detailScatter.Visibility = System.Windows.Visibility.Collapsed;
+            pictureScatter.Visibility = System.Windows.Visibility.Visible;
+            pictureScatter.Center = new Point(900, 500);
+            pictureScatter.Orientation = 0.0;
+            detailImage.Source = new BitmapImage(node.Picture);
+
+            var bbb = TimeSpan.FromMilliseconds(150);
+            var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
+            aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+            detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+
+            _timelineStoryboard.Pause(this);
+        }
+        public void ClosePopupInfo()
+        {
+            if (_openingNode != null)
+                _openingNode.Close();
+            var bbb = TimeSpan.FromMilliseconds(50);
+            var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
+            aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Hidden, System.Windows.Media.Animation.KeyTime.FromTimeSpan(bbb)));
+            detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+            detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+            _timelineStoryboard.Resume(this);
+        }
 
         //ログイン時のユーザ選択の実装
         void backGrid_PreviewInputDown(object sender, InputEventArgs e)
@@ -124,7 +182,7 @@ namespace CloudDining
         {
             loginUserSelecter.Visibility = System.Windows.Visibility.Hidden;
         }
-
+        //雲追加関係
         void _fieldManager_HomeNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             Dispatcher.Invoke((Action)(() =>
@@ -224,25 +282,6 @@ namespace CloudDining
                 }
             }));
         }
-        void detailScatter_CenterChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            var point = (Point)e.NewValue;
-            if (detailScatter.IsMouseOver == false)
-            {
-                var width = detailPanelContainer.ActualWidth;
-                var height = detailPanelContainer.ActualHeight;
-                if (width - point.X < 20 || height - point.Y < 20 || point.X < 20 || point.Y < 20)
-                {
-                    var bbb = TimeSpan.FromMilliseconds(50);
-                    var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
-                    aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
-                    aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Hidden, System.Windows.Media.Animation.KeyTime.FromTimeSpan(bbb)));
-                    detailPanelContainer.BeginAnimation(Control.VisibilityProperty,  aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
-                    detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
-                    _timelineStoryboard.Resume(this);
-                }
-            }
-        }
         void CloudComplex_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             Dispatcher.Invoke((Action)(() =>
@@ -282,51 +321,43 @@ namespace CloudDining
                 }
             }));
         }
+        //詳細表示関係
         void DramItem_Click(object sender, RoutedEventArgs e)
         {
             var dramItem = (Controls.DramItem)((SurfaceButton)sender).Tag;
             if (dramItem.Tag is ComplexCloudNode)
-            {
-                var complexCloud = (ComplexCloudNode)dramItem.Tag;
-                pictureScatter.Visibility = System.Windows.Visibility.Collapsed;
-                detailScatter.Visibility = System.Windows.Visibility.Visible;
-                detailScatter.Center = new Point(900, 500);
-                detailScatter.Orientation = 0.0;
-                detailPanel.Items.Clear();
-                foreach (var item in complexCloud.Children)
-                    detailPanel.Items.Add(new Controls.GanttItem()
-                    {
-                        StartTime = item.CheckinTime,
-                        //EndTime = item.CheckinTime.Add(item.CheckinSpan),
-                        EndTime = item.CheckinTime.AddMinutes(30),
-                        HeadIcon = item.Owner.Icon,
-                    });
-            }
+                ShowPopupInfo((ComplexCloudNode)dramItem.Tag);
             else if (dramItem.Tag is PlaneNode)
-            {
-                var plane = (PlaneNode)dramItem.Tag;
-                detailScatter.Visibility = System.Windows.Visibility.Collapsed;
-                pictureScatter.Visibility = System.Windows.Visibility.Visible;
-                pictureScatter.Center = new Point(900, 500);
-                pictureScatter.Orientation = 0.0;
-                detailImage.Source = new BitmapImage(plane.Picture);
-            }
-            _timelineStoryboard.Pause(this);
-
-            var bbb = TimeSpan.FromMilliseconds(150);
-            var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
-            aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
-            detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
-            detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
+                ShowPopupInfo((PlaneNode)dramItem.Tag);
         }
-        void SurfaceButton_Click(object sender, RoutedEventArgs e)
+        void detailScatter_CenterChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var point = (Point)e.NewValue;
+            if (detailScatter.IsMouseOver == false)
+            {
+                var width = detailPanelContainer.ActualWidth;
+                var height = detailPanelContainer.ActualHeight;
+                if (width - point.X < 20 || height - point.Y < 20 || point.X < 20 || point.Y < 20)
+                    ClosePopupInfo();
+            }
+        }
+        //コントローラー関係
+        void btn_ChangeMode_Click(object sender, RoutedEventArgs e)
+        {
+            _fieldManager.Mode = (ActiveModeType)(((int)_fieldManager.Mode + 1) % 2);
+        }
+        void btn_PostPlane_Click(object sender, RoutedEventArgs e)
         {
             DataCacheDictionary.DownloadUserIcon(new Uri("https://lh3.googleusercontent.com/-_EKZ1xMSe8M/UEiC5bvR5jI/AAAAAAAACzE/nuFW2QY647c/s576/06+-+1"))
                 .ContinueWith(tsk =>
-                    {
-                        _fieldManager.PostPlane(
-                            new PlaneNode(tsk.Result, _fieldManager.Users.First(), null));
-                    });
+                {
+                    _fieldManager.PostPlane(
+                        new PlaneNode(tsk.Result, _fieldManager.Users.First(), null));
+                });
+        }
+        void btn_Exit_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.Shutdown();
         }
 
         protected override void OnClosed(EventArgs e)

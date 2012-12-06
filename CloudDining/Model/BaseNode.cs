@@ -17,10 +17,16 @@ namespace CloudDining.Model
         public virtual DateTime RaiseTime { get; protected set; }
         public UIElement TimeshiftElement { get; set; }
         public UIElement HomeElement { get; set; }
-        public virtual void Close()
-        { IsOpened = true; }
         public virtual void Open()
-        { IsOpened = false; }
+        {
+            IsOpened = true;
+            OnIsOpenedChanged(new ExEventArgs<bool>(IsOpened));
+        }
+        public virtual void Close()
+        {
+            IsOpened = false;
+            OnIsOpenedChanged(new ExEventArgs<bool>(IsOpened));
+        }
 
         public event EventHandler<ExEventArgs<bool>> IsOpenedChanged;
         protected virtual void OnIsOpenedChanged(ExEventArgs<bool> e)

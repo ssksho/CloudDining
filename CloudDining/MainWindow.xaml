@@ -67,25 +67,13 @@
           PreviewTouchDown="backGrid_PreviewInputDown" PreviewTouchMove="backGrid_PreviewInputMove" PreviewTouchUp="backGrid_PreviewInputUp">
         <Image Source="/Resources/wallpaper.jpg" Stretch="UniformToFill" />
         <Grid Name="homeGrid">
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button1">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="Click">
-                        <ie:ChangePropertyAction TargetObject="{Binding DataContext, ElementName=backGrid}" PropertyName="Mode" Value="Timeline" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </s:SurfaceButton>
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="ChangeMode" Click="btn_ChangeMode_Click" />
         </Grid>
         <Grid Name="timeshiftGrid">
             <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Maximum="0" Minimum="-2520" IsManipulationEnabled="True" />
             <s:SurfaceSlider VerticalAlignment="Top" Value="{Binding AngleOffset, ElementName=timeshiftDram, Mode=TwoWay}" Maximum="1800" Minimum="-1800" />
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="Button2">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="Click">
-                        <ie:ChangePropertyAction TargetObject="{Binding DataContext, ElementName=backGrid}" PropertyName="Mode" Value="Home" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </s:SurfaceButton>
-            <s:SurfaceButton HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="PostPlane" Click="SurfaceButton_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="ChangeMode" Click="btn_ChangeMode_Click" />
+            <s:SurfaceButton HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="PostPlane" Click="btn_PostPlane_Click" />
         </Grid>
         <s:ScatterView x:Name="detailPanelContainer" Background="#40000000" Visibility="Hidden">
             <local:ExScatterViewItem x:Name="detailScatter" CanScale="False">
