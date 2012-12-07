@@ -51,7 +51,6 @@ namespace CloudDining
             _timelineStoryboard = new System.Windows.Media.Animation.Storyboard();
             _timelineStoryboard.Children.Add(timelineAnime);
             _timelineStoryboard.Begin(this, true);
-            //timeshiftDram.BeginAnimation(Controls.DramControl.SubAngleOffsetProperty, _timelineStoryboard);
             MinutesToAngleRate = 360 * kaiten / len.TotalMinutes;
         }
         const double LATEST_OFFSET_LINE = 20;
@@ -248,10 +247,10 @@ namespace CloudDining
                             {
                                 Content = new SurfaceButton()
                                 {
-                                    Content = new Image()
+                                    Content = new Controls.PlaneControl()
                                     {
-                                        Height = 130,
-                                        Source = new BitmapImage(item.Picture),
+                                        Height = item.IsReaded ? 130 : 50,
+                                        PlaneStatus = Controls.PlaneStateType.Right,
                                         Effect = (System.Windows.Media.Effects.Effect)FindResource("dropShadowEffectB"),
                                     },
                                     Background = null,
@@ -260,6 +259,7 @@ namespace CloudDining
                                 Angle = (item.RaiseTime - _startAppTime).TotalMinutes * MinutesToAngleRate + LATEST_OFFSET_LINE,
                                 Track = _rnd.Next(20) * 30,
                             };
+                            item.IsReadedChanged += item_IsReadedChanged;
                             ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
                             ((SurfaceButton)dramItem.Content).Tag = dramItem;
                             dramItem.Tag = item;
@@ -321,6 +321,18 @@ namespace CloudDining
                 }
             }));
         }
+        void item_IsReadedChanged(object sender, ExEventArgs<bool> e)
+        {
+            var item = (PlaneNode)sender;
+            var container = (ContentControl)((Controls.DramItem)item.TimeshiftElement).Content;
+            item.IsReadedChanged -= item_IsReadedChanged;
+            container.Content = new Image()
+            {
+                Source = new BitmapImage(item.Picture),
+                Effect = (System.Windows.Media.Effects.Effect)FindResource("dropShadowEffectB"),
+            };
+            container.Height = item.IsReaded ? 130 : 50;
+        }
         //詳細表示関係
         void DramItem_Click(object sender, RoutedEventArgs e)
         {
@@ -354,10 +366,6 @@ namespace CloudDining
                     _fieldManager.PostPlane(
                         new PlaneNode(tsk.Result, _fieldManager.Users.First(), null));
                 });
-        }
-        void btn_Exit_Click(object sender, RoutedEventArgs e)
-        {
-            App.Current.Shutdown();
         }
 
         protected override void OnClosed(EventArgs e)
