@@ -206,7 +206,6 @@ namespace CloudDining
             count = storyboards.Count;
             var x = ActualWidth;
             var y = ActualHeight;
-            //plane.MouseDown += detailDisplayPlane;
             plane.Tag = count;
 
             hw[1] = _rnd.Next((int)y);
@@ -217,6 +216,7 @@ namespace CloudDining
                 RepeatBehavior = new RepeatBehavior((double)1.0),
                 AutoReverse = false
             };
+            Storyboard.SetTarget(animation, plane);
             var frame = new EasingDoubleKeyFrame(x, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(xtime)));
             if (_rnd.Next(2) > 0)
             {
@@ -238,6 +238,7 @@ namespace CloudDining
                 RepeatBehavior = new RepeatBehavior((double)1.0),
                 AutoReverse = false
             };
+            Storyboard.SetTarget(animation, plane);
             frame = new EasingDoubleKeyFrame(y, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ytime)));
             if (_rnd.Next(2) > 0)
             {
@@ -254,7 +255,7 @@ namespace CloudDining
             storyboard.Children.Add(animation);
 
             storyboards.Add(storyboard);
-            storyboards[count].Begin(plane, true);
+            storyboards[count].Begin(this, true);
             return plane;
         }
 
@@ -318,7 +319,6 @@ namespace CloudDining
         {
             loginUserSelecter.Visibility = System.Windows.Visibility.Hidden;
         }
-
         //雲追加関係
         void _fieldManager_HomeNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -330,8 +330,10 @@ namespace CloudDining
                         foreach (var item in e.NewItems.OfType<ComplexCloudNode>())
                         {
                             var cld = createStoryBoardCLD();
-                            cld.Height = 200;
-                            cld.Width = 300;
+                            //cld.Height = 200;
+                            //cld.Width = 300;
+                            //cld.CloudTypeId = 1;
+                            var a=item.Children.Count;
                             //item.ChildrenChanged += CloudComplex_Home_ChildrenChanged;
                             item.Element = cld;
                             cld.MouseDown += Home_Click;

@@ -24,6 +24,8 @@ namespace CloudDining.Model
             TimelineNodes = new ReadOnlyObservableCollection<BaseNode>(_timelineNodes);
             Mode = ActiveModeType.Home;
 
+            _checkinSpan = TimeSpan.FromSeconds(2);
+            _cloudLifeSpan = TimeSpan.FromSeconds(8);
             AddUser(new Account("父", new Uri("pack://application:,,,/Resources/Profiles/user00.jpg", UriKind.Absolute), this));
             AddUser(new Account("母", new Uri("pack://application:,,,/Resources/Profiles/user01.jpg", UriKind.Absolute), this));
             AddUser(new Account("息子", new Uri("pack://application:,,,/Resources/Profiles/user02.jpg", UriKind.Absolute), this));
@@ -34,6 +36,7 @@ namespace CloudDining.Model
         Random _rnd;
         ActiveModeType _mode;
         BaseNode _openingNode;
+        TimeSpan _checkinSpan, _cloudLifeSpan;
         Dictionary<Account, DateTime> _userCheckinTime;
         ObservableCollection<Account> _users;
         ObservableCollection<BaseNode> _timelineNodes;
@@ -89,11 +92,11 @@ namespace CloudDining.Model
                 OnCheckined(new ExEventArgs<Account>(target));
             }
 
-            Delay<Account>(state =>
-                CheckoutUser((Account)state, cloudLifeSpan),
-                target, checkinSpan.HasValue ? (long)checkinSpan.Value.TotalSeconds : 60 * 30);
+            Delay<Account>(
+                state => CheckoutUser((Account)state, cloudLifeSpan ?? _cloudLifeSpan),
+                target, (long)(checkinSpan ?? _checkinSpan).TotalSeconds);
         }
-        public bool CheckoutUser(Account target, TimeSpan? lifeSpan = null)
+        public bool CheckoutUser(Account target, TimeSpan lifeSpan)
         {
             if (_userCheckinTime.ContainsKey(target) == false)
                 throw new ArgumentException(
@@ -124,13 +127,8 @@ namespace CloudDining.Model
             OnCheckouted(new ExEventArgs<Account>(target));
 
             complexNodeTimeshift.Add(cloudNode);
-            complexNodeHome.Add(cloudNode);
+            complexNodeHome.Add(cloudNode, lifeSpan);
             _userCheckinTime[target] = DateTime.MinValue;
-
-            //3時間で雲は消える
-            //Delay<ComplexCloudNode>(
-            //    node => _homeNodes.Remove(node), complexNodeTimeshift,
-            //    lifeSpan.HasValue ? (long)lifeSpan.Value.TotalSeconds : 60 * 60 * 3);
 
             return true;
         }

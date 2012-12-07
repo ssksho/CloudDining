@@ -72,7 +72,7 @@ namespace CloudDining.Model
         void SelectedStatus_Executed(object param)
         {
             _accountModel.Weather = _weather;
-            _accountModel.Field.CheckinUser(_accountModel, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+            _accountModel.Field.CheckinUser(_accountModel);
         }
     }
 }
