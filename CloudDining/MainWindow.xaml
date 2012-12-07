@@ -68,7 +68,7 @@
         <Image Source="/Resources/wallpaper.jpg" Stretch="UniformToFill" />
         <Canvas Name="homeGrid">
             <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="ChangeMode" Click="btn_ChangeMode_Click" />
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="120,15,15,15" Content="PostPlane" Click="btn_PostPlane_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="150,15,15,15" Content="PostPlane" Click="btn_PostPlane_Click" />
         </Canvas>
         <Grid Name="timeshiftGrid">
             <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Maximum="0" Minimum="-2520" IsManipulationEnabled="True" />

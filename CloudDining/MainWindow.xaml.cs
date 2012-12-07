@@ -96,8 +96,6 @@ namespace CloudDining
             aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
             detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
             detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
-
-            _timelineStoryboard.Pause(this);
         }
         public void ShowPopupInfo(PlaneNode node)
         {
@@ -114,8 +112,6 @@ namespace CloudDining
             aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
             detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
             detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
-
-            _timelineStoryboard.Pause(this);
         }
         public void ClosePopupInfo()
         {
@@ -127,7 +123,6 @@ namespace CloudDining
             aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Hidden, System.Windows.Media.Animation.KeyTime.FromTimeSpan(bbb)));
             detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
             detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
-            _timelineStoryboard.Resume(this);
         }
         CloudStructure createStoryBoardCLD()
         {
@@ -155,6 +150,7 @@ namespace CloudDining
                 RepeatBehavior = RepeatBehavior.Forever,
                 AutoReverse = true
             };
+            Storyboard.SetTarget(animation, cloud);
             var frame = new EasingDoubleKeyFrame(x, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(xtime)));
             if (_rnd.Next(2) > 0)
             {
@@ -174,15 +170,18 @@ namespace CloudDining
                 RepeatBehavior = RepeatBehavior.Forever,
                 AutoReverse = true
             };
+            Storyboard.SetTarget(animation, cloud);
             frame = new EasingDoubleKeyFrame(y, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ytime)));
             if (_rnd.Next(2) > 0)
             {
                 Canvas.SetTop(cloud, hw[1]);
+                
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Top)"));
             }
             else
             {
                 Canvas.SetBottom(cloud, hw[1]);
+                Storyboard.SetTarget(animation, cloud);
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Bottom)"));
             }
 
@@ -190,13 +189,13 @@ namespace CloudDining
             storyboard.Children.Add(animation);
 
             storyboards.Add(storyboard);
-            storyboards[count].Begin(cloud, true);
+            storyboards[count].Begin(this, true);
             return cloud;
         }
         PlaneControl createStoryBoardPlane()
         {
-            var xtime = _rnd.Next(2000, 5000);
-            var ytime = _rnd.Next(2000, 5000);
+            var xtime = _rnd.Next(4000, 6000);
+            var ytime = _rnd.Next(4000, 6000);
 
             plane = new PlaneControl();
             count = storyboards.Count;
@@ -314,6 +313,7 @@ namespace CloudDining
         {
             loginUserSelecter.Visibility = System.Windows.Visibility.Hidden;
         }
+
         //雲追加関係
         void _fieldManager_HomeNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -329,19 +329,11 @@ namespace CloudDining
                             cld.Width = 300;
                             item.ChildrenChanged += CloudComplex_ChildrenChanged;
                             item.HomeElement = cld;
+                            cld.MouseDown += Home_Click;
+                            var items = new Tuple<int, ComplexCloudNode>(storyboards.Count-1, item);
+                            cld.Tag = items;
                             homeGrid.Children.Add(cld);
                             
-
-                            var grid = new Grid();
-                            var dramItem = new Controls.DramItem()
-                            {
-                                Content = new SurfaceButton() { Content = grid, Background = null, Style = (Style)FindResource("surfaceTemplate"), }
-                            };
-                            ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
-                            ((SurfaceButton)dramItem.Content).Tag = dramItem;
-                            dramItem.Tag = item;
-                            //item.HomeElement = dramItem;
-                            //homeGrid.Children.Add(dramItem);
                         }
                         foreach (var item in e.NewItems.OfType<PlaneNode>())
                         {
@@ -349,6 +341,9 @@ namespace CloudDining
                             pln.Height = 150;
                             pln.Width = 200;
                             item.HomeElement = pln;
+                            pln.MouseDown += Home_Click;
+                            var items = new Tuple<int, PlaneNode>(storyboards.Count - 1, item);
+                            pln.Tag = items;
                             homeGrid.Children.Add(pln);
                         }
                         break;
@@ -491,6 +486,24 @@ namespace CloudDining
                 ShowPopupInfo((ComplexCloudNode)dramItem.Tag);
             else if (dramItem.Tag is PlaneNode)
                 ShowPopupInfo((PlaneNode)dramItem.Tag);
+            _timelineStoryboard.Pause(this);
+        }
+        void Home_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CloudStructure)
+            {
+                var cld = (CloudStructure)sender;
+                var items = (Tuple<int,ComplexCloudNode>)cld.Tag;
+                ShowPopupInfo((ComplexCloudNode)items.Item2);
+                storyboards[(int)items.Item1].Pause(this);
+            }
+            else if (sender is PlaneControl)
+            {
+                var pln = (PlaneControl)sender;
+                var items = (Tuple<int, PlaneNode>)pln.Tag;
+                ShowPopupInfo((PlaneNode)items.Item2);
+                storyboards[(int)items.Item1].Pause(this);
+            }
         }
         void detailScatter_CenterChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -500,7 +513,11 @@ namespace CloudDining
                 var width = detailPanelContainer.ActualWidth;
                 var height = detailPanelContainer.ActualHeight;
                 if (width - point.X < 20 || height - point.Y < 20 || point.X < 20 || point.Y < 20)
+                {
                     ClosePopupInfo();
+                    _timelineStoryboard.Resume(this);
+                    storyboards[0].Resume(this);
+                }
             }
         }
         //コントローラー関係
