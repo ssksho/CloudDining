@@ -35,10 +35,10 @@ namespace CloudDining.Model
         ActiveModeType _mode;
         BaseNode _openingNode;
         Dictionary<Account, DateTime> _userCheckinTime;
-        Dictionary<object, System.Threading.Timer> _lifeTimer;
         ObservableCollection<Account> _users;
         ObservableCollection<BaseNode> _timelineNodes;
         ObservableCollection<BaseNode> _homeNodes;
+        static Dictionary<object, System.Threading.Timer> _lifeTimer; 
 
         public ReadOnlyObservableCollection<Account> Users { get; set; }
         public ReadOnlyObservableCollection<BaseNode> TimelineNodes { get; set; }
@@ -86,7 +86,6 @@ namespace CloudDining.Model
             if (CheckStatusOf(target) == false)
             {
                 _userCheckinTime[target] = DateTime.Now;
-                System.Diagnostics.Debug.WriteLine("DebugWriteLine: Checkin", target.Name);
                 OnCheckined(new ExEventArgs<Account>(target));
             }
 
@@ -102,34 +101,41 @@ namespace CloudDining.Model
             if (_userCheckinTime[target] == DateTime.MinValue)
                 return false;
 
-            var complexNode = new ComplexCloudNode();
+            var complexNodeTimeshift = new ComplexCloudNode(true);
+            var complexNodeHome = new ComplexCloudNode(false);
             var checkinTime = _userCheckinTime[target];
             var checkinSpan = DateTime.Now - checkinTime;
             var cloudNode = new CloudNode(target, target.Weather, _rnd.Next(30), checkinTime, checkinSpan);
-            foreach (var item in TimelineNodes.Reverse().OfType<ComplexCloudNode>())
-                if (item.RaiseTime > checkinTime)
-                    item.Children.Add(cloudNode);
-
             lock (_homeNodes)
             {
-                _homeNodes.Add(complexNode);
-                _timelineNodes.Add(complexNode);
+                foreach (var item in TimelineNodes.Reverse().OfType<ComplexCloudNode>())
+                    if (item.RaiseTime > checkinTime)
+                        item.Add(cloudNode);
+                foreach (var item in HomeNodes.Reverse().OfType<ComplexCloudNode>())
+                    if (item.RaiseTime > checkinTime)
+                        item.Add(cloudNode);
+                _homeNodes.Add(complexNodeHome);
+                _timelineNodes.Add(complexNodeTimeshift);
             }
-            complexNode.IsOpenedChanged += complexNode_IsOpenedChanged;
+            complexNodeTimeshift.IsOpenedChanged += complexNode_IsOpenedChanged;
+            complexNodeTimeshift.ChildrenChanged += complexNode_ChildrenChanged;
+            complexNodeHome.IsOpenedChanged += complexNode_IsOpenedChanged;
+            complexNodeHome.ChildrenChanged += complexNode_ChildrenChanged;
             OnCheckouted(new ExEventArgs<Account>(target));
 
-            complexNode.Children.Add(cloudNode);
+            complexNodeTimeshift.Add(cloudNode);
+            complexNodeHome.Add(cloudNode);
             _userCheckinTime[target] = DateTime.MinValue;
 
             //3時間で雲は消える
-            Delay<ComplexCloudNode>(
-                node => _homeNodes.Remove(node), complexNode,
-                lifeSpan.HasValue ? (long)lifeSpan.Value.TotalSeconds : 60 * 60 * 3);
+            //Delay<ComplexCloudNode>(
+            //    node => _homeNodes.Remove(node), complexNodeTimeshift,
+            //    lifeSpan.HasValue ? (long)lifeSpan.Value.TotalSeconds : 60 * 60 * 3);
 
             return true;
         }
 
-        void Delay<T>(Action<T> handler, T param, long delaySecounds)
+        public static void Delay<T>(Action<T> handler, T param, long delaySecounds)
         {
             System.Threading.Timer timer;
             if (_lifeTimer.TryGetValue(param, out timer))
@@ -147,6 +153,15 @@ namespace CloudDining.Model
             state[2] = handler;
             timer.Change(delaySecounds * 1000, System.Threading.Timeout.Infinite);
         }
+        static void lifeTimer_Fired<T>(object state)
+        {
+            var timer = (System.Threading.Timer)((object[])state)[0];
+            var param = (T)((object[])state)[1];
+            var lamda = (Action<T>)((object[])state)[2];
+            lamda(param);
+            timer.Dispose();
+            _lifeTimer.Remove(_lifeTimer.First(pair => pair.Value == timer).Key);
+        }
         void complexNode_IsOpenedChanged(object sender, ExEventArgs<bool> e)
         {
             if (e.Value)
@@ -158,14 +173,16 @@ namespace CloudDining.Model
             else
                 _openingNode = null;
         }
-        void lifeTimer_Fired<T>(object state)
+        void complexNode_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            var timer = (System.Threading.Timer)((object[])state)[0];
-            var param = (T)((object[])state)[1];
-            var lamda = (Action<T>)((object[])state)[2];
-            lamda(param);
-            timer.Dispose();
-            _lifeTimer.Remove(_lifeTimer.First(pair => pair.Value == timer).Key);
+            var complexNode = (Model.ComplexCloudNode)sender;
+            if(e.Action == NotifyCollectionChangedAction.Remove)
+                if (complexNode.Children.Count == 0)
+                {
+                    complexNode.ChildrenChanged -= complexNode_ChildrenChanged;
+                    _timelineNodes.Remove(complexNode);
+                    _homeNodes.Remove(complexNode);
+                }
         }
         void FieldManager_HomeNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
         {

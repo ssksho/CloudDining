@@ -41,7 +41,7 @@ namespace CloudDining
             _startAppTime = DateTime.Now;
             _fieldManager = new FieldManager(Dispatcher);
             _fieldManager.HomeNodesChanged += _fieldManager_HomeNodesChanged;
-            _fieldManager.TimelineNodesChanged += _fieldManager_TimelineNodesChanged;
+            _fieldManager.TimelineNodesChanged += _fieldManager_TimeshiftNodesChanged;
             DataContext = _fieldManager;
 
             var len = TimeSpan.FromHours(8);
@@ -75,6 +75,7 @@ namespace CloudDining
 
         public void ShowPopupInfo(ComplexCloudNode node)
         {
+            node.Pause();
             node.Open();
             _openingNode = node;
             pictureScatter.Visibility = System.Windows.Visibility.Collapsed;
@@ -116,7 +117,11 @@ namespace CloudDining
         public void ClosePopupInfo()
         {
             if (_openingNode != null)
+            {
                 _openingNode.Close();
+                if (_openingNode is ComplexCloudNode)
+                    ((ComplexCloudNode)_openingNode).Resume();
+            }
             var bbb = TimeSpan.FromMilliseconds(50);
             var aaa = new System.Windows.Media.Animation.ObjectAnimationUsingKeyFrames();
             aaa.KeyFrames.Add(new System.Windows.Media.Animation.DiscreteObjectKeyFrame(Visibility.Visible, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
@@ -327,8 +332,8 @@ namespace CloudDining
                             var cld = createStoryBoardCLD();
                             cld.Height = 200;
                             cld.Width = 300;
-                            item.ChildrenChanged += CloudComplex_ChildrenChanged;
-                            item.HomeElement = cld;
+                            //item.ChildrenChanged += CloudComplex_Home_ChildrenChanged;
+                            item.Element = cld;
                             cld.MouseDown += Home_Click;
                             var items = new Tuple<int, ComplexCloudNode>(storyboards.Count-1, item);
                             cld.Tag = items;
@@ -340,7 +345,7 @@ namespace CloudDining
                             var pln = createStoryBoardPlane();
                             pln.Height = 150;
                             pln.Width = 200;
-                            item.HomeElement = pln;
+                            item.Element = pln;
                             pln.MouseDown += Home_Click;
                             var items = new Tuple<int, PlaneNode>(storyboards.Count - 1, item);
                             pln.Tag = items;
@@ -350,20 +355,20 @@ namespace CloudDining
                     case NotifyCollectionChangedAction.Remove:
                         foreach (var item in e.OldItems.OfType<ComplexCloudNode>())
                         {
-                            var dramItem = item.HomeElement;
+                            var dramItem = item.Element;
                             homeGrid.Children.Remove(dramItem);
-                            item.ChildrenChanged -= CloudComplex_ChildrenChanged;
+                            item.ChildrenChanged -= CloudComplex_Home_ChildrenChanged;
                         }
                         foreach (var item in e.OldItems.OfType<PlaneNode>())
                         {
-                            var dramItem = item.HomeElement;
+                            var dramItem = item.Element;
                             homeGrid.Children.Remove(dramItem);
                         }
                         break;
                 }
             }));
         }
-        void _fieldManager_TimelineNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void _fieldManager_TimeshiftNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             Dispatcher.Invoke((Action)(() =>
             {
@@ -372,7 +377,7 @@ namespace CloudDining
                     case NotifyCollectionChangedAction.Add:
                         foreach (var item in e.NewItems.OfType<ComplexCloudNode>())
                         {
-                            item.ChildrenChanged += CloudComplex_ChildrenChanged;
+                            item.ChildrenChanged += CloudComplex_Timeshift_ChildrenChanged;
                             var grid = new Grid();
                             var dramItem = new Controls.DramItem()
                             {
@@ -383,7 +388,7 @@ namespace CloudDining
                             ((SurfaceButton)dramItem.Content).Click += DramItem_Click;
                             ((SurfaceButton)dramItem.Content).Tag = dramItem;
                             dramItem.Tag = item;
-                            item.TimeshiftElement = dramItem;
+                            item.Element = dramItem;
                             timeshiftDram.Items.Add(dramItem);
                         }
                         foreach (var item in e.NewItems.OfType<PlaneNode>())
@@ -411,28 +416,28 @@ namespace CloudDining
                             dramItem.BeginAnimation(
                                 Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0,
                                 (Duration)TimeSpan.FromMilliseconds(500)));
-                            item.TimeshiftElement = dramItem;
+                            item.Element = dramItem;
                             timeshiftDram.Items.Add(dramItem);
                         }
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         foreach (var item in e.OldItems.OfType<ComplexCloudNode>())
-                            item.ChildrenChanged -= CloudComplex_ChildrenChanged;
+                            item.ChildrenChanged -= CloudComplex_Timeshift_ChildrenChanged;
                         foreach (var item in e.OldItems.OfType<BaseNode>())
                         {
-                            var dramItem = item.TimeshiftElement;
+                            var dramItem = item.Element;
                             timeshiftDram.Items.Remove(dramItem);
                         }
                         break;
                 }
             }));
         }
-        void CloudComplex_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void CloudComplex_Timeshift_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             Dispatcher.Invoke((Action)(() =>
             {
                 var complexCloud = (ComplexCloudNode)sender;
-                var dramItem = (Controls.DramItem)complexCloud.TimeshiftElement;
+                var dramItem = (Controls.DramItem)complexCloud.Element;
                 var grid = (Grid)((SurfaceButton)dramItem.Content).Content;
 
                 switch (e.Action)
@@ -452,7 +457,7 @@ namespace CloudDining
                                 Tag = item,
                                 Effect = complexCloud.Children.Count == 1 ? null : (System.Windows.Media.Effects.DropShadowEffect)FindResource("dropShadowEffectA")
                             };
-                            item.TimeshiftElement = cloudStructure;
+                            item.Element = cloudStructure;
                             grid.Children.Add(cloudStructure);
                             cloudStructure.BeginAnimation(
                                 Control.OpacityProperty,
@@ -461,7 +466,46 @@ namespace CloudDining
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         foreach (var item in e.OldItems.Cast<CloudNode>())
-                            grid.Children.Remove(item.TimeshiftElement);
+                            grid.Children.Remove(item.Element);
+                        break;
+                }
+            }));
+        }
+        void CloudComplex_Home_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Dispatcher.Invoke((Action)(() =>
+            {
+                var complexCloud = (ComplexCloudNode)sender;
+                var dramItem = (Controls.DramItem)complexCloud.Element;
+                var grid = (Grid)((SurfaceButton)dramItem.Content).Content;
+
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (var item in e.NewItems.Cast<CloudNode>())
+                        {
+                            var cloudStructure = new Controls.CloudStructure()
+                            {
+                                Width = 200,
+                                Height = 150,
+                                CloudTypeId = item.CloudTypeId,
+                                CloudStatus = item.Status,
+                                RenderTransform = new TranslateTransform(
+                                    complexCloud.Children.Count * 15,
+                                    complexCloud.Children.Count * 15),
+                                Tag = item,
+                                Effect = complexCloud.Children.Count == 1 ? null : (System.Windows.Media.Effects.DropShadowEffect)FindResource("dropShadowEffectA")
+                            };
+                            item.Element = cloudStructure;
+                            grid.Children.Add(cloudStructure);
+                            cloudStructure.BeginAnimation(
+                                Control.OpacityProperty,
+                                new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, new Duration(TimeSpan.FromMilliseconds(1000))));
+                        }
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (var item in e.OldItems.Cast<CloudNode>())
+                            grid.Children.Remove(item.Element);
                         break;
                 }
             }));
@@ -469,7 +513,7 @@ namespace CloudDining
         void item_IsReadedChanged(object sender, ExEventArgs<bool> e)
         {
             var item = (PlaneNode)sender;
-            var container = (ContentControl)((Controls.DramItem)item.TimeshiftElement).Content;
+            var container = (ContentControl)((Controls.DramItem)item.Element).Content;
             item.IsReadedChanged -= item_IsReadedChanged;
             container.Content = new Image()
             {
@@ -494,14 +538,17 @@ namespace CloudDining
             {
                 var cld = (CloudStructure)sender;
                 var items = (Tuple<int,ComplexCloudNode>)cld.Tag;
-                ShowPopupInfo((ComplexCloudNode)items.Item2);
+                var cldNd = (ComplexCloudNode)items.Item2;
+                cldNd.Pause();
+                ShowPopupInfo(cldNd);
                 storyboards[(int)items.Item1].Pause(this);
             }
             else if (sender is PlaneControl)
             {
                 var pln = (PlaneControl)sender;
                 var items = (Tuple<int, PlaneNode>)pln.Tag;
-                ShowPopupInfo((PlaneNode)items.Item2);
+                var plnNd = (PlaneNode)items.Item2;
+                ShowPopupInfo(plnNd);
                 storyboards[(int)items.Item1].Pause(this);
             }
         }
