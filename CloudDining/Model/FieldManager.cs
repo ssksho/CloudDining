@@ -18,20 +18,21 @@ namespace CloudDining.Model
             _users = new ObservableCollection<Account>();
             _timelineNodes = new ObservableCollection<BaseNode>();
             _homeNodes = new ObservableCollection<BaseNode>();
+            _checkinSpan = TimeSpan.FromSeconds(5);
+            _cloudLifeSpan = TimeSpan.FromSeconds(30);
 
             Users = new ReadOnlyObservableCollection<Account>(_users);
             HomeNodes = new ReadOnlyObservableCollection<BaseNode>(_homeNodes);
             TimelineNodes = new ReadOnlyObservableCollection<BaseNode>(_timelineNodes);
             Mode = ActiveModeType.Home;
 
-            _checkinSpan = TimeSpan.FromSeconds(2);
-            _cloudLifeSpan = TimeSpan.FromSeconds(8);
             AddUser(new Account("父", new Uri("pack://application:,,,/Resources/Profiles/user00.jpg", UriKind.Absolute), this));
             AddUser(new Account("母", new Uri("pack://application:,,,/Resources/Profiles/user01.jpg", UriKind.Absolute), this));
             AddUser(new Account("息子", new Uri("pack://application:,,,/Resources/Profiles/user02.jpg", UriKind.Absolute), this));
             AddUser(new Account("娘", new Uri("pack://application:,,,/Resources/Profiles/user03.jpg", UriKind.Absolute), this));
 
-            HomeNodesChanged += FieldManager_HomeNodesChanged;
+            HomeNodesChanged += FieldManager_TimelineNodesChanged;
+            TimelineNodesChanged += FieldManager_TimelineNodesChanged;
         }
         Random _rnd;
         ActiveModeType _mode;
@@ -57,13 +58,12 @@ namespace CloudDining.Model
             }
         }
 
-        public void PostPlane(PlaneNode data)
+        internal void PostPlane(PlaneNode home, PlaneNode time)
         {
-            data.IsOpenedChanged += complexNode_IsOpenedChanged;
             lock (_homeNodes)
             {
-                _homeNodes.Add(data);
-                _timelineNodes.Add(data);
+                _homeNodes.Add(home);
+                _timelineNodes.Add(time);
             }
         }
         public void AddUser(Account target)
@@ -108,7 +108,7 @@ namespace CloudDining.Model
             var complexNodeHome = new ComplexCloudNode(false);
             var checkinTime = _userCheckinTime[target];
             var checkinSpan = DateTime.Now - checkinTime;
-            var cloudNode = new CloudNode(target, target.Weather, _rnd.Next(30), checkinTime, checkinSpan);
+            var cloudNode = new CloudNode(target, target.Weather, _rnd.Next(30), checkinTime, checkinSpan, lifeSpan);
             lock (_homeNodes)
             {
                 foreach (var item in TimelineNodes.Reverse().OfType<ComplexCloudNode>())
@@ -120,9 +120,7 @@ namespace CloudDining.Model
                 _homeNodes.Add(complexNodeHome);
                 _timelineNodes.Add(complexNodeTimeshift);
             }
-            complexNodeTimeshift.IsOpenedChanged += complexNode_IsOpenedChanged;
             complexNodeTimeshift.ChildrenChanged += complexNode_ChildrenChanged;
-            complexNodeHome.IsOpenedChanged += complexNode_IsOpenedChanged;
             complexNodeHome.ChildrenChanged += complexNode_ChildrenChanged;
             OnCheckouted(new ExEventArgs<Account>(target));
 
@@ -160,7 +158,41 @@ namespace CloudDining.Model
             timer.Dispose();
             _lifeTimer.Remove(_lifeTimer.First(pair => pair.Value == timer).Key);
         }
-        void complexNode_IsOpenedChanged(object sender, ExEventArgs<bool> e)
+        void FieldManager_TimelineNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (BaseNode item in e.NewItems)
+                    {
+                        item.IsOpenedChanged += baseNode_IsOpenedChanged;
+                        if (item is PlaneNode)
+                            ((PlaneNode)item).IsReadedChanged += planeNode_IsReadedChanged;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (BaseNode item in e.OldItems)
+                    {
+                        item.IsOpenedChanged -= baseNode_IsOpenedChanged;
+                        if (item is PlaneNode)
+                            ((PlaneNode)item).IsReadedChanged -= planeNode_IsReadedChanged;
+                    }
+                    break;
+            }
+        }
+        void complexNode_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var complexNode = (Model.ComplexCloudNode)sender;
+            if (e.Action == NotifyCollectionChangedAction.Remove
+                || e.Action == NotifyCollectionChangedAction.Reset)
+                if (complexNode.Children.Count == 0)
+                {
+                    complexNode.ChildrenChanged -= complexNode_ChildrenChanged;
+                    _timelineNodes.Remove(complexNode);
+                    _homeNodes.Remove(complexNode);
+                }
+        }
+        void baseNode_IsOpenedChanged(object sender, ExEventArgs<bool> e)
         {
             if (e.Value)
             {
@@ -171,34 +203,7 @@ namespace CloudDining.Model
             else
                 _openingNode = null;
         }
-        void complexNode_ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            var complexNode = (Model.ComplexCloudNode)sender;
-            if(e.Action == NotifyCollectionChangedAction.Remove)
-                if (complexNode.Children.Count == 0)
-                {
-                    complexNode.ChildrenChanged -= complexNode_ChildrenChanged;
-                    _timelineNodes.Remove(complexNode);
-                    _homeNodes.Remove(complexNode);
-                }
-        }
-        void FieldManager_HomeNodesChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    foreach(var item in e.NewItems)
-                        if(item is PlaneNode)
-                            ((PlaneNode)item).IsReadedChanged += PlaneNode_IsReadedChanged;
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    foreach(var item in e.OldItems)
-                        if (item is PlaneNode)
-                            ((PlaneNode)item).IsReadedChanged += PlaneNode_IsReadedChanged;
-                    break;
-            }
-        }
-        void PlaneNode_IsReadedChanged(object sender, ExEventArgs<bool> e)
+        void planeNode_IsReadedChanged(object sender, ExEventArgs<bool> e)
         {
             if (e.Value == true)
                 _homeNodes.Remove((PlaneNode)sender);

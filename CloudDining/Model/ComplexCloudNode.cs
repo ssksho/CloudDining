@@ -14,17 +14,19 @@ namespace CloudDining.Model
         public ComplexCloudNode(bool isTimeshift, DateTime? raiseTime = null)
             : base(raiseTime)
         {
+            _syncer_countFilledDisplaySpanNode = new object();
             _isTimeshift = isTimeshift;
             _children = new ObservableCollection<CloudNode>();
             _children.CollectionChanged += _children_CollectionChanged;
             Children = new ReadOnlyObservableCollection<CloudNode>(_children);
         }
         bool _isTimeshift;
-        int _timerGen;
+        object _syncer_countFilledDisplaySpanNode;
+        int _timerGen, countFilledDisplaySpanNode;
         DateTime _pauseTime;
-        TimeSpan _aa = TimeSpan.FromSeconds(5);
         ObservableCollection<CloudNode> _children;
 
+        public bool HasInvisibleCloud { get; private set; }
         public System.Collections.ObjectModel.ReadOnlyObservableCollection<CloudNode> Children { get; private set; }
         public void Add(CloudNode node, TimeSpan? lifeTime = null)
         {
@@ -34,8 +36,10 @@ namespace CloudDining.Model
                 {
                     if (tuple.Item1 != _timerGen)
                         return;
-                    _children.Remove(tuple.Item2);
-                    Console.WriteLine("aaa");
+                    lock (_syncer_countFilledDisplaySpanNode)
+                        countFilledDisplaySpanNode++;
+                    if (countFilledDisplaySpanNode == Children.Count)
+                        _children.Clear();
                 }, new Tuple<int, CloudNode>(_timerGen, node), (long)(lifeTime ?? TimeSpan.FromSeconds(3)).TotalSeconds);
         }
         public void Pause()
@@ -53,13 +57,17 @@ namespace CloudDining.Model
             {
                 var utc = DateTime.Now;
                 var pauseSpan = utc - _pauseTime;
-                var aaa = item.CheckinTime + item.CheckinSpan + _aa + pauseSpan;
+                var aaa = item.CheckinTime + item.CheckinSpan + item.DisplaySpan + pauseSpan;
                 var newSpan = aaa - utc;
+                newSpan = newSpan > TimeSpan.Zero ? newSpan : TimeSpan.Zero;
                 FieldManager.Delay(tuple =>
                         {
                             if (tuple.Item1 != _timerGen)
                                 return;
-                            _children.Remove(tuple.Item2);
+                            lock (_syncer_countFilledDisplaySpanNode)
+                                countFilledDisplaySpanNode++;
+                            if (countFilledDisplaySpanNode == Children.Count)
+                                _children.Clear();
                         }, new Tuple<int, CloudNode>(_timerGen, item), (long)newSpan.TotalSeconds);
             }
             _pauseTime = DateTime.MinValue;

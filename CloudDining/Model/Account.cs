@@ -49,8 +49,13 @@ namespace CloudDining.Model
             }
         }
 
-        public PlaneNode CreatePlaneNode(Uri imageUrl, DateTime? raiseTime)
-        { return new PlaneNode(imageUrl, this, raiseTime); }
+        public void PostPlane(Uri imageUrl, DateTime? raiseTime)
+        {
+            var res = PlaneNode.CreatePlanePair(imageUrl, this, raiseTime);
+            var home = res[0];
+            var time = res[1];
+            Field.PostPlane(home, time);
+        }
     }
     public class CheckinStateViewModel : ViewModel.ViewModelBase
     {

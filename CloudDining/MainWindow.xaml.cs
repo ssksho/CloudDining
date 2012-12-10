@@ -65,13 +65,6 @@ namespace CloudDining
         List<Tuple<InputDevice, DispatcherTimer>> _loginUserSelecterDevice;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, ElementMenu> _loginUserSelecterMenu;
         Dictionary<Tuple<InputDevice, DispatcherTimer>, Point> _loginUserSelecterPoint;
-        //佐々木追加
-        List<Storyboard> storyboards = new List<Storyboard>();
-        Storyboard storyboard;
-        CloudStructure cloud;
-        PlaneControl plane;
-        int count;
-        int[] hw = new int[4] { 0, 0, 0, 0 };
 
         public void ShowPopupInfo(ComplexCloudNode node)
         {
@@ -129,134 +122,81 @@ namespace CloudDining
             detailPanelContainer.BeginAnimation(Control.VisibilityProperty, aaa, System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
             detailPanelContainer.BeginAnimation(Control.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0.0, (Duration)bbb), System.Windows.Media.Animation.HandoffBehavior.SnapshotAndReplace);
         }
-        CloudStructure createStoryBoardCLD()
+        Storyboard createStoryBoardCLD(FrameworkElement animationTarget, Action<Point,Point,TimeSpan,Storyboard> extendFunc)
         {
-            var xtime = _rnd.Next(20000, 50000);
-            var ytime = _rnd.Next(20000, 50000);
-            var typeID = _rnd.Next(30);
-            
-            cloud = new CloudStructure();
-            count = storyboards.Count;
-            var x = ActualWidth;
-            var y = ActualHeight;
-            cloud.CloudTypeId = typeID;
-            //cloud.CloudStatus = (CloudStateType)_rnd.Next(2);
-            //cloud.MouseDown += detailDisplayCld;
-            cloud.Tag = count;
+            var storyboard = new Storyboard();
+            var spanSum = TimeSpan.Zero;
+            //端から端まで移動するサイクルを5回繰り返すアニメーションを
+            //共通的に適用する
+            for (var i = 0; i < 5; i++)
+            {
+                var moveSpan = TimeSpan.FromMilliseconds(_rnd.Next(20000, 50000));
+                double xA, yA, xB, yB;
+                //画面の上、右のサイズ合計を上限に乱数を取得。これを使用して上か右かに
+                //張り付いた座標を生成する。生成したらその位置と対角になる座標を生成。
+                //対角座標算出のブレ幅として80上限の乱数を加算する
+                var pointSeed = _rnd.Next((int)backGrid.ActualWidth + (int)backGrid.ActualHeight);
+                var pointASeed = pointSeed;
+                var pointBSeed = pointSeed - _rnd.Next(100);
+                xA = Math.Min(pointASeed, backGrid.ActualWidth);
+                yA = Math.Max(pointASeed - backGrid.ActualWidth, 0);
+                //座標が0の場合は左か上に張り付いている事になる。250引く事で見えない部分を
+                //指定させ、コントロールが完全に画面の枠外に出るようにする
+                xA -= xA == 0 ? 250 : 0;
+                yA -= yA == 0 ? 250 : 0;
+                xB = Math.Max(backGrid.ActualWidth - pointBSeed, 0);
+                yB = Math.Max(backGrid.ActualHeight - Math.Max(pointBSeed - backGrid.ActualWidth, 0), 0);
+                xB -= xB == 0 ? 250 : 0;
+                yB -= yB == 0 ? 250 : 0;
+                Point startPoint, endPoint;
+                if (_rnd.Next(2) == 0)
+                {
+                    startPoint = new Point(xA, yA);
+                    endPoint = new Point(xB, yB);
+                }
+                else
+                {
+                    startPoint = new Point(xB, yB);
+                    endPoint = new Point(xA, yA);
+                }
 
-            hw[2] = (int)x;
-            hw[3] = (int)y;
-            var i = _rnd.Next(2);
-            hw[i] = _rnd.Next(hw[(i + 2)]);
-
-            storyboard = new Storyboard();
-            var animation = new DoubleAnimationUsingKeyFrames
-            {
-                RepeatBehavior = RepeatBehavior.Forever,
-                AutoReverse = true
-            };
-            Storyboard.SetTarget(animation, cloud);
-            var frame = new EasingDoubleKeyFrame(x, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(xtime)));
-            if (_rnd.Next(2) > 0)
-            {
-                Canvas.SetRight(cloud, hw[0]);
-                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Right)"));
-            }
-            else
-            {
-                Canvas.SetLeft(cloud, hw[0]);
+                var animation = new DoubleAnimationUsingKeyFrames();
+                Storyboard.SetTarget(animation, animationTarget);
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Left)"));
-            }
-            animation.KeyFrames.Add(frame);
-            storyboard.Children.Add(animation);
+                animation.BeginTime = spanSum;
+                animation.KeyFrames.Add(new EasingDoubleKeyFrame(startPoint.X, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+                animation.KeyFrames.Add(new EasingDoubleKeyFrame(endPoint.X, KeyTime.FromTimeSpan(moveSpan)));
+                storyboard.Children.Add(animation);
 
-            animation = new DoubleAnimationUsingKeyFrames
-            {
-                RepeatBehavior = RepeatBehavior.Forever,
-                AutoReverse = true
-            };
-            Storyboard.SetTarget(animation, cloud);
-            frame = new EasingDoubleKeyFrame(y, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ytime)));
-            if (_rnd.Next(2) > 0)
-            {
-                Canvas.SetTop(cloud, hw[1]);
-                
+                animation = new DoubleAnimationUsingKeyFrames();
+                Storyboard.SetTarget(animation, animationTarget);
                 Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Top)"));
-            }
-            else
-            {
-                Canvas.SetBottom(cloud, hw[1]);
-                Storyboard.SetTarget(animation, cloud);
-                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Bottom)"));
-            }
+                animation.BeginTime = spanSum;
+                animation.KeyFrames.Add(new EasingDoubleKeyFrame(startPoint.Y, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+                animation.KeyFrames.Add(new EasingDoubleKeyFrame(endPoint.Y, KeyTime.FromTimeSpan(moveSpan)));
+                storyboard.Children.Add(animation);
 
-            animation.KeyFrames.Add(frame);
-            storyboard.Children.Add(animation);
-
-            storyboards.Add(storyboard);
-            storyboards[count].Begin(this, true);
-            return cloud;
+                if (extendFunc != null)
+                    extendFunc(startPoint, endPoint, spanSum, storyboard);
+                spanSum += moveSpan;
+            }
+            storyboard.RepeatBehavior = RepeatBehavior.Forever;
+            storyboard.Begin(this, true);
+            return storyboard;
         }
-        PlaneControl createStoryBoardPlane()
+        Storyboard createStoryBoardPLN(FrameworkElement animationTarget, PlaneControl plane)
         {
-            var xtime = _rnd.Next(4000, 6000);
-            var ytime = _rnd.Next(4000, 6000);
-
-            plane = new PlaneControl();
-            count = storyboards.Count;
-            var x = ActualWidth;
-            var y = ActualHeight;
-            plane.Tag = count;
-
-            hw[1] = _rnd.Next((int)y);
-
-            storyboard = new Storyboard();
-            var animation = new DoubleAnimationUsingKeyFrames
-            {
-                RepeatBehavior = new RepeatBehavior((double)1.0),
-                AutoReverse = false
-            };
-            Storyboard.SetTarget(animation, plane);
-            var frame = new EasingDoubleKeyFrame(x, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(xtime)));
-            if (_rnd.Next(2) > 0)
-            {
-                plane.PlaneStatus = PlaneStateType.Left;
-                Canvas.SetRight(plane, hw[0]);
-                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Right)"));
-            }
-            else
-            {
-                plane.PlaneStatus = PlaneStateType.Right;
-                Canvas.SetLeft(plane, hw[0]);
-                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Left)"));
-            }
-            animation.KeyFrames.Add(frame);
-            storyboard.Children.Add(animation);
-
-            animation = new DoubleAnimationUsingKeyFrames
-            {
-                RepeatBehavior = new RepeatBehavior((double)1.0),
-                AutoReverse = false
-            };
-            Storyboard.SetTarget(animation, plane);
-            frame = new EasingDoubleKeyFrame(y, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ytime)));
-            if (_rnd.Next(2) > 0)
-            {
-                Canvas.SetTop(plane, hw[1]);
-                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Top)"));
-            }
-            else
-            {
-                Canvas.SetBottom(plane, hw[1]);
-                Storyboard.SetTargetProperty(animation, new PropertyPath("(Canvas.Bottom)"));
-            }
-
-            animation.KeyFrames.Add(frame);
-            storyboard.Children.Add(animation);
-
-            storyboards.Add(storyboard);
-            storyboards[count].Begin(this, true);
-            return plane;
+            return createStoryBoardCLD(animationTarget, (beginPoint, endPoint, beginTime, storyboard) =>
+                {
+                    var animation = new ObjectAnimationUsingKeyFrames();
+                    Storyboard.SetTarget(animation, plane);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(PlaneControl.PlaneStatusProperty));
+                    animation.BeginTime = beginTime;
+                    animation.KeyFrames.Add(new DiscreteObjectKeyFrame(
+                        endPoint.X - beginPoint.X >= 0 ? PlaneStateType.Right : PlaneStateType.Left,
+                        KeyTime.FromTimeSpan(TimeSpan.Zero)));
+                    storyboard.Children.Add(animation);
+                });
         }
 
         //ログイン時のユーザ選択の実装
@@ -329,42 +269,52 @@ namespace CloudDining
                     case NotifyCollectionChangedAction.Add:
                         foreach (var item in e.NewItems.OfType<ComplexCloudNode>())
                         {
-                            var cld = createStoryBoardCLD();
-                            //cld.Height = 200;
-                            //cld.Width = 300;
-                            //cld.CloudTypeId = 1;
-                            var a=item.Children.Count;
-                            //item.ChildrenChanged += CloudComplex_Home_ChildrenChanged;
-                            item.Element = cld;
-                            cld.MouseDown += Home_Click;
-                            var items = new Tuple<int, ComplexCloudNode>(storyboards.Count-1, item);
-                            cld.Tag = items;
-                            homeGrid.Children.Add(cld);
-                            
+                            item.ChildrenChanged += CloudComplex_Home_ChildrenChanged;
+                            var grid = new Grid();
+                            var container = new SurfaceButton() { Content = grid, Background = null, Style = (Style)FindResource("surfaceTemplate"), };
+                            container.Click += container_Click;                            
+                            item.Element = container;
+                            homeGrid.Children.Add(container);
+                            container.Tag = new object[] { item, createStoryBoardCLD(container, null) };
                         }
                         foreach (var item in e.NewItems.OfType<PlaneNode>())
                         {
-                            var pln = createStoryBoardPlane();
-                            pln.Height = 150;
-                            pln.Width = 200;
-                            item.Element = pln;
-                            pln.MouseDown += Home_Click;
-                            var items = new Tuple<int, PlaneNode>(storyboards.Count - 1, item);
-                            pln.Tag = items;
-                            homeGrid.Children.Add(pln);
+                            var planeControl = new PlaneControl();
+                            var container = new SurfaceButton() { Content = planeControl, Background = null, Style = (Style)FindResource("surfaceTemplate"), };
+                            planeControl.Height = 150;
+                            planeControl.Width = 200;
+                            container.Tag = new object[] { item, createStoryBoardPLN(container, planeControl) };
+                            container.Click += container_Click;
+                            item.Element = container;
+                            homeGrid.Children.Add(container);
                         }
                         break;
                     case NotifyCollectionChangedAction.Remove:
-                        foreach (var item in e.OldItems.OfType<ComplexCloudNode>())
+                        foreach (var item in e.OldItems.OfType<BaseNode>())
                         {
-                            var dramItem = item.Element;
-                            homeGrid.Children.Remove(dramItem);
-                            item.ChildrenChanged -= CloudComplex_Home_ChildrenChanged;
-                        }
-                        foreach (var item in e.OldItems.OfType<PlaneNode>())
-                        {
-                            var dramItem = item.Element;
-                            homeGrid.Children.Remove(dramItem);
+                            var container = (SurfaceButton)item.Element;
+                            var storyboard = (Storyboard)((object[])container.Tag)[1];
+                            if (item is ComplexCloudNode)
+                                ((ComplexCloudNode)item).ChildrenChanged -= CloudComplex_Home_ChildrenChanged;
+
+                            var animeSpan = TimeSpan.FromMilliseconds(1000);
+                            var feedOutAnime = new DoubleAnimation(0.0, (Duration)animeSpan);
+                            Storyboard.SetTarget(feedOutAnime, container);
+                            Storyboard.SetTargetProperty(feedOutAnime, new PropertyPath(Control.OpacityProperty));
+                            var visibilityAnime = new ObjectAnimationUsingKeyFrames();
+                            visibilityAnime.KeyFrames.Add(new DiscreteObjectKeyFrame(Visibility.Visible, (KeyTime)TimeSpan.Zero));
+                            visibilityAnime.KeyFrames.Add(new DiscreteObjectKeyFrame(Visibility.Collapsed, (KeyTime)animeSpan));
+                            Storyboard.SetTarget(visibilityAnime, container);
+                            Storyboard.SetTargetProperty(visibilityAnime, new PropertyPath(Control.VisibilityProperty));
+                            var feedOutStoryboard = new Storyboard();
+                            feedOutStoryboard.Children.Add(feedOutAnime);
+                            feedOutStoryboard.Children.Add(visibilityAnime);
+                            feedOutStoryboard.Begin(this);
+                            FieldManager.Delay(ctrl =>
+                                {
+                                    Dispatcher.Invoke((Action<Control>)(aaa => homeGrid.Children.Remove(aaa)), ctrl);
+                                    storyboard.Stop(this);
+                                }, container, (long)animeSpan.TotalSeconds + 1);
                         }
                         break;
                 }
@@ -478,8 +428,8 @@ namespace CloudDining
             Dispatcher.Invoke((Action)(() =>
             {
                 var complexCloud = (ComplexCloudNode)sender;
-                var dramItem = (Controls.DramItem)complexCloud.Element;
-                var grid = (Grid)((SurfaceButton)dramItem.Content).Content;
+                var container = (SurfaceButton)complexCloud.Element;
+                var grid = (Grid)container.Content;
 
                 switch (e.Action)
                 {
@@ -505,10 +455,10 @@ namespace CloudDining
                                 new System.Windows.Media.Animation.DoubleAnimation(0.0, 1.0, new Duration(TimeSpan.FromMilliseconds(1000))));
                         }
                         break;
-                    case NotifyCollectionChangedAction.Remove:
-                        foreach (var item in e.OldItems.Cast<CloudNode>())
-                            grid.Children.Remove(item.Element);
-                        break;
+                    //case NotifyCollectionChangedAction.Remove:
+                    //    foreach (var item in e.OldItems.Cast<CloudNode>())
+                    //        grid.Children.Remove(item.Element);
+                    //    break;
                 }
             }));
         }
@@ -534,25 +484,16 @@ namespace CloudDining
                 ShowPopupInfo((PlaneNode)dramItem.Tag);
             _timelineStoryboard.Pause(this);
         }
-        void Home_Click(object sender, RoutedEventArgs e)
+        void container_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is CloudStructure)
-            {
-                var cld = (CloudStructure)sender;
-                var items = (Tuple<int,ComplexCloudNode>)cld.Tag;
-                var cldNd = (ComplexCloudNode)items.Item2;
-                cldNd.Pause();
-                ShowPopupInfo(cldNd);
-                storyboards[(int)items.Item1].Pause(this);
-            }
-            else if (sender is PlaneControl)
-            {
-                var pln = (PlaneControl)sender;
-                var items = (Tuple<int, PlaneNode>)pln.Tag;
-                var plnNd = (PlaneNode)items.Item2;
-                ShowPopupInfo(plnNd);
-                storyboards[(int)items.Item1].Pause(this);
-            }
+            var container = (SurfaceButton)sender;
+            var node = (BaseNode)((object[])container.Tag)[0];
+            var storyboard = (Storyboard)((object[])container.Tag)[1];
+            if (node is ComplexCloudNode)
+                ShowPopupInfo((ComplexCloudNode)node);
+            else if (node is PlaneNode)
+                ShowPopupInfo((PlaneNode)node);
+            storyboard.Pause(this);
         }
         void detailScatter_CenterChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -565,7 +506,11 @@ namespace CloudDining
                 {
                     ClosePopupInfo();
                     _timelineStoryboard.Resume(this);
-                    storyboards[0].Resume(this);
+                    if (((FrameworkElement)_openingNode.Element).Tag is object[])
+                    {
+                        var board = (Storyboard)((object[])((FrameworkElement)_openingNode.Element).Tag)[1];
+                        board.Resume(this);
+                    }
                 }
             }
         }
@@ -578,10 +523,7 @@ namespace CloudDining
         {
             DataCacheDictionary.DownloadUserIcon(new Uri("https://lh3.googleusercontent.com/-_EKZ1xMSe8M/UEiC5bvR5jI/AAAAAAAACzE/nuFW2QY647c/s576/06+-+1"))
                 .ContinueWith(tsk =>
-                {
-                    _fieldManager.PostPlane(
-                        new PlaneNode(tsk.Result, _fieldManager.Users.First(), null));
-                });
+                    _fieldManager.Users.First().PostPlane(tsk.Result, null));
         }
 
         protected override void OnClosed(EventArgs e)

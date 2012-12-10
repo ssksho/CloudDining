@@ -33,5 +33,26 @@ namespace CloudDining.Model
             if (IsReadedChanged != null)
                 IsReadedChanged(this, e);
         }
+
+        public static PlaneNode[] CreatePlanePair(Uri imageUrl, Account owner, DateTime? raiseTime)
+        {
+            var home = new PlaneNode(imageUrl, owner, raiseTime);
+            var time = new PlaneNode(imageUrl, owner, raiseTime);
+            home.IsReadedChanged += (sender, e) =>
+            {
+                if (time.IsReaded)
+                    return;
+                time.IsReaded = true;
+                time.OnIsReadedChanged(new ExEventArgs<bool>(true));
+            };
+            time.IsReadedChanged += (sender, e) =>
+            {
+                if (home.IsReaded)
+                    return;
+                home.IsReaded = true;
+                home.OnIsReadedChanged(new ExEventArgs<bool>(true));
+            };
+            return new PlaneNode[] { home, time };
+        }
     }
 }

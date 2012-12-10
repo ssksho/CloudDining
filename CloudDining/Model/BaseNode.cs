@@ -15,7 +15,7 @@ namespace CloudDining.Model
         }
         public bool IsOpened { get; private set; }
         public virtual DateTime RaiseTime { get; protected set; }
-        public UIElement Element { get; set; }
+        public FrameworkElement Element { get; set; }
         public virtual void Open()
         {
             IsOpened = true;

@@ -9,19 +9,21 @@ namespace CloudDining.Model
 {
     public class CloudNode
     {
-        public CloudNode(Account owner, Controls.CloudStateType status, int cloudTypeId, DateTime checkinTime, TimeSpan checkinSpan, DateTime? raiseTime = null)
+        public CloudNode(Account owner, Controls.CloudStateType status, int cloudTypeId, DateTime checkinTime, TimeSpan checkinSpan, TimeSpan displaySpan, DateTime? raiseTime = null)
         {
             Owner = owner;
             Status = status;
             CloudTypeId = cloudTypeId;
             CheckinTime = checkinTime;
             CheckinSpan = checkinSpan;
+            DisplaySpan = displaySpan;
         }
         Controls.CloudStateType _status;
 
         public Account Owner { get; private set; }
         public DateTime CheckinTime { get; private set; }
         public TimeSpan CheckinSpan { get; private set; }
+        public TimeSpan DisplaySpan { get; private set; }
         public UIElement Element { get; set; }
         public Controls.CloudStateType Status
         {
