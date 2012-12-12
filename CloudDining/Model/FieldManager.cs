@@ -114,11 +114,18 @@ namespace CloudDining.Model
                 foreach (var item in TimelineNodes.Reverse().OfType<ComplexCloudNode>())
                     if (item.RaiseTime > checkinTime)
                         item.Add(cloudNode);
+                bool aaa = true;
                 foreach (var item in HomeNodes.Reverse().OfType<ComplexCloudNode>())
                     if (item.RaiseTime > checkinTime)
+                    {
+                        aaa = false;
                         item.Add(cloudNode);
-                _homeNodes.Add(complexNodeHome);
-                _timelineNodes.Add(complexNodeTimeshift);
+                    }
+                if (aaa)
+                {
+                    _homeNodes.Add(complexNodeHome);
+                    _timelineNodes.Add(complexNodeTimeshift);
+                }
             }
             complexNodeTimeshift.ChildrenChanged += complexNode_ChildrenChanged;
             complexNodeHome.ChildrenChanged += complexNode_ChildrenChanged;
@@ -186,11 +193,12 @@ namespace CloudDining.Model
             if (e.Action == NotifyCollectionChangedAction.Remove
                 || e.Action == NotifyCollectionChangedAction.Reset)
                 if (complexNode.Children.Count == 0)
-                {
-                    complexNode.ChildrenChanged -= complexNode_ChildrenChanged;
-                    _timelineNodes.Remove(complexNode);
-                    _homeNodes.Remove(complexNode);
-                }
+                    lock (_homeNodes)
+                    {
+                        complexNode.ChildrenChanged -= complexNode_ChildrenChanged;
+                        _timelineNodes.Remove(complexNode);
+                        _homeNodes.Remove(complexNode);
+                    }
         }
         void baseNode_IsOpenedChanged(object sender, ExEventArgs<bool> e)
         {
@@ -206,7 +214,8 @@ namespace CloudDining.Model
         void planeNode_IsReadedChanged(object sender, ExEventArgs<bool> e)
         {
             if (e.Value == true)
-                _homeNodes.Remove((PlaneNode)sender);
+                lock (_homeNodes)
+                    _homeNodes.Remove((PlaneNode)sender);
         }
 
         public event EventHandler<ExEventArgs<Account>> Checkined;
