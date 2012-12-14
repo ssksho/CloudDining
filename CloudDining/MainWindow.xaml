@@ -26,6 +26,14 @@
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="settingGrid" Storyboard.TargetProperty="Opacity" Duration="0:0:0" To="0.0" />
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="settingGrid" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Hidden</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
         </Storyboard>
         <Storyboard x:Key="board_changeHomeMode">
             <DoubleAnimation Storyboard.TargetName="timeshiftGrid" Storyboard.TargetProperty="Opacity" Duration="0:0:0.5" To="0.0" />
@@ -41,6 +49,40 @@
                 <DiscreteObjectKeyFrame KeyTime="0:0:0">
                     <DiscreteObjectKeyFrame.Value>
                         <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="settingGrid" Storyboard.TargetProperty="Opacity" Duration="0:0:0.5" To="0.0" />
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="settingGrid" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Hidden</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="board_changeSettingMode">
+            <DoubleAnimation Storyboard.TargetName="settingGrid" Storyboard.TargetProperty="Opacity" Duration="0:0:1" To="1.0" />
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="settingGrid" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="homeGrid" Storyboard.TargetProperty="Opacity" Duration="0:0:1" To="0.0" />
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="homeGrid" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Hidden</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="timeshiftGrid" Storyboard.TargetProperty="Opacity" Duration="0:0:1" To="0.0" />
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="timeshiftGrid" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Hidden</Visibility>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
@@ -67,14 +109,24 @@
           PreviewTouchDown="backGrid_PreviewInputDown" PreviewTouchMove="backGrid_PreviewInputMove" PreviewTouchUp="backGrid_PreviewInputUp">
         <Image Source="/Resources/wallpaper.jpg" Stretch="UniformToFill" />
         <Canvas Name="homeGrid">
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="ChangeMode" Click="btn_ChangeMode_Click" />
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="150,15,15,15" Content="PostPlane" Click="btn_PostPlane_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="TimeshiftMode" Click="btn_ChangeMode_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="160,15,15,15" Content="PostPlane" Click="btn_PostPlane_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="1200,15,15,15" Content="SettingMode" Click="btn_ChangeModeSetting_Click" />
         </Canvas>
         <Grid Name="timeshiftGrid">
             <local:DramControl x:Name="timeshiftDram" ArcWidth="800" ArcHeight="100" Maximum="0" Minimum="-2520" IsManipulationEnabled="True" />
             <s:SurfaceSlider VerticalAlignment="Top" Value="{Binding AngleOffset, ElementName=timeshiftDram, Mode=TwoWay}" Maximum="1800" Minimum="-1800" />
-            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="ChangeMode" Click="btn_ChangeMode_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="HomeMode" Click="btn_ChangeMode_Click" />
             <s:SurfaceButton HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="PostPlane" Click="btn_PostPlane_Click" />
+        </Grid>
+        <Grid Name="settingGrid">
+            <Image Name="wallPaper" Source="/Resources/Setting/wallPaper.png" Stretch="UniformToFill" Visibility="Visible" />
+            <Image Name="userAdd" Source="/Resources/Setting/userAdd.png" Stretch="UniformToFill" Visibility="Hidden" />
+            <Image Name="ICTagAdd" Source="/Resources/Setting/ICTagAdd.png" Stretch="UniformToFill" Visibility="Hidden" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="15" Content="wallPaper" Click="btn_ChangeSettings_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="120,15,15,15" Content="userAdd" Click="btn_ChangeSettings_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="210,15,15,15" Content="ICTagAdd" Click="btn_ChangeSettings_Click" />
+            <s:SurfaceButton HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="1200,15,15,15" Content="HomeMode" Click="btn_ChangeModeSetting_Click" />
         </Grid>
         <s:ScatterView x:Name="detailPanelContainer" Background="#40000000" Visibility="Hidden">
             <local:ExScatterViewItem x:Name="detailScatter" CanScale="False">
@@ -117,7 +169,12 @@
             </ie:DataTrigger>
             <ie:DataTrigger Binding="{Binding DataContext.Mode, ElementName=backGrid}" Value="Home">
                 <ie:ControlStoryboardAction Storyboard="{StaticResource board_changeTimeshiftMode}" ControlStoryboardOption="Stop" />
+                <ie:ControlStoryboardAction Storyboard="{StaticResource board_changeSettingMode}" ControlStoryboardOption="Stop" />
                 <ie:ControlStoryboardAction Storyboard="{StaticResource board_changeHomeMode}" ControlStoryboardOption="Play" />
+            </ie:DataTrigger>
+            <ie:DataTrigger Binding="{Binding DataContext.Mode, ElementName=backGrid}" Value="Setting">
+                <ie:ControlStoryboardAction Storyboard="{StaticResource board_changeHomeMode}" ControlStoryboardOption="Stop" />
+                <ie:ControlStoryboardAction Storyboard="{StaticResource board_changeSettingMode}" ControlStoryboardOption="Play" />
             </ie:DataTrigger>
         </i:Interaction.Triggers>
     </Grid>

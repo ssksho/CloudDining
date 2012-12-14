@@ -250,7 +250,7 @@ namespace CloudDining.Model
     public enum NodeType
     { All, Cloud, Plane }
     public enum ActiveModeType
-    { Home, Timeline }
+    { Home, Timeline, Setting }
 
     public class ExEventArgs<T> : EventArgs
     {

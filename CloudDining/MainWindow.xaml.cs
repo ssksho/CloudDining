@@ -519,6 +519,23 @@ namespace CloudDining
         {
             _fieldManager.Mode = (ActiveModeType)(((int)_fieldManager.Mode + 1) % 2);
         }
+        void btn_ChangeModeSetting_Click(object sender, RoutedEventArgs e)
+        {
+            if (_fieldManager.Mode == ActiveModeType.Home)
+                _fieldManager.Mode = ActiveModeType.Setting;
+            else
+                _fieldManager.Mode = ActiveModeType.Home;
+        }
+        void btn_ChangeSettings_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in settingGrid.Children)
+                if (item is Image)
+                {
+                    var img = (Image)item;
+                    img.Visibility = Visibility.Hidden;
+                    if ((string)((SurfaceButton)sender).Content == (string)img.Name) img.Visibility = Visibility.Visible;
+                }
+        }
         void btn_PostPlane_Click(object sender, RoutedEventArgs e)
         {
             _fieldManager.Users.First().PostPlane(new Uri("/Resources/attachedPicture.jpg", UriKind.Relative), null);

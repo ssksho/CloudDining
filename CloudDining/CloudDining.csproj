@@ -111,6 +111,11 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Setting\wallPaper.png" />
+    <Resource Include="Resources\Setting\userAdd.png" />
+    <Resource Include="Resources\Setting\userAddConfirm.png" />
+    <Resource Include="Resources\Setting\ICTagAdd.png" />
+    <Resource Include="Resources\Setting\ICTagAddConfirm.png" />
     <Resource Include="Resources\Wathers\rainy.png" />
     <Resource Include="Resources\Wathers\sunny.png" />
     <Resource Include="Resources\Wathers\thunder.png" />
