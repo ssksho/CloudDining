@@ -6,7 +6,7 @@
     xmlns:ie="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:localmdl="clr-namespace:CloudDining.Model"
     xmlns:local="clr-namespace:CloudDining.Controls"
-    Title="CloudDining" Width="1200" Height="800">
+    Title="CloudDining" Width="1200" Height="800" WindowStyle="None">
     <s:SurfaceWindow.Resources>
         <!--ホーム,タイムシフト画面切り替えアニメーション-->
         <Storyboard x:Key="board_changeTimeshiftMode">
@@ -82,7 +82,7 @@
             </local:ExScatterViewItem>
             <local:ExScatterViewItem x:Name="pictureScatter" CanScale="False">
                 <Border BorderBrush="White" BorderThickness="15">
-                    <Image Name="detailImage" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                    <Image Name="detailImage" HorizontalAlignment="Left" VerticalAlignment="Top" Width="1000" />
                 </Border>
             </local:ExScatterViewItem>
         </s:ScatterView>

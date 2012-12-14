@@ -207,6 +207,7 @@
     <Resource Include="Resources\Clouds\cloudImage27_2.png" />
     <Resource Include="Resources\Clouds\cloudImage28_2.png" />
     <Resource Include="Resources\Clouds\cloudImage29_2.png" />
+    <Resource Include="Resources\attachedPicture.jpg" />
     <Content Include="Resources\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

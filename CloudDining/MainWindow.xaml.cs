@@ -521,9 +521,7 @@ namespace CloudDining
         }
         void btn_PostPlane_Click(object sender, RoutedEventArgs e)
         {
-            DataCacheDictionary.DownloadUserIcon(new Uri("https://lh3.googleusercontent.com/-_EKZ1xMSe8M/UEiC5bvR5jI/AAAAAAAACzE/nuFW2QY647c/s576/06+-+1"))
-                .ContinueWith(tsk =>
-                    _fieldManager.Users.First().PostPlane(tsk.Result, null));
+            _fieldManager.Users.First().PostPlane(new Uri("/Resources/attachedPicture.jpg", UriKind.Relative), null);
         }
 
         protected override void OnClosed(EventArgs e)
